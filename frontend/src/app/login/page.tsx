@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import axios from "axios";
+import Image from "next/image";
 
 const LoginPage: React.FC = () => {
     const [id, setId] = useState('');
@@ -37,7 +38,21 @@ const LoginPage: React.FC = () => {
 
     return (
         <div className="flex flex-col min-h-screen">
-            {/* Main Content */}
+            <a
+                href="/"
+                className="cursor-pointer flex items-center space-x-3 rtl:space-x-reverse mt-2 mx-2"
+            >
+                <Image
+                    // src={dark ? "/stocker_log.png" : "/stocker_log.png"}
+                    src={"/stocker_log.png"}
+                    className="h-2"
+                    alt="stocker_logo"
+                    width={180}
+                    height={60}
+                    style={{ width: "auto", height: "auto" }}
+                    priority
+                />
+            </a>
             <div className="flex flex-1">
                 {/* Login Form */}
                 <div className="flex-1 flex items-center justify-center bg-gray-100">
@@ -90,8 +105,8 @@ const LoginPage: React.FC = () => {
             {/* Footer */}
             <footer className="bg-gray-800 text-white py-4">
                 <div className="text-center">
-                    <p className="text-sm">&copy; 2024 Your Company. All rights reserved.</p>
-                    <a href="#" className="text-blue-400 hover:underline">Contact Us</a>
+                    <p className="text-sm">&copy; 2024 jyg. All rights reserved.</p>
+                    <a href="#" className="text-blue-400 hover:underline">Contact Us : seamus-1@naver.com</a>
                 </div>
             </footer>
         </div>

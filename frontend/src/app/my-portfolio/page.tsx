@@ -1,11 +1,22 @@
+"use client";
 import React from 'react';
 import Sidebar from "../components/SideBar";
+import {RootState} from "../store/store";
+import {useSelector} from "react-redux";
+import {useEffect} from "react";
+
+
 
 const MyPortfolio = () => {
 
     // Axios를 사용해서 getData
     const favoriteStocks = ['Stock 1', 'Stock 2', 'Stock 3', 'Stock 4', 'Stock 5'];
+    // const accessToken = useSelector((state: RootState) => state.auth.accessToken);
 
+    // useEffect(() =>console.log(accessToken),[])
+    // React.useEffect(() => {
+    //     console.log('Access Token in Redux:', accessToken);
+    // }, [accessToken]);
     return (
         <div className="flex">
             {/* FavoriteSidebar에 리스트 데이터를 전달 */}

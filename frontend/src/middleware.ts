@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
 
     const url = request.nextUrl.clone();
     const isLoggedIn = request.cookies.get('auth_token')?.value;
+    console.log("auth_token : ",request.cookies.get('auth_token'))
 
 
     const authToken = request.cookies.get('auth_token');

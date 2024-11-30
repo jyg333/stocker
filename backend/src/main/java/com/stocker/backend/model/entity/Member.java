@@ -7,8 +7,6 @@ import lombok.*;
 
 import java.util.Set;
 
-//Test용 임시 클래스
-
 @Getter
 @Setter
 @NoArgsConstructor

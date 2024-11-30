@@ -1,23 +1,25 @@
 package com.stocker.backend.model.dto.response;
 
-import lombok.AllArgsConstructor;
+
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class MemberAllListDto {
+public class MemberListDto {
 
     private String id;
-    private String position;
-    private Boolean activation;
-    private Integer failCount;
+    private String name;
     private List<String> roles;
 
+    public MemberListDto(String id, String name, List<String> roles) {
+        this.id = id;
+        this.name = name;
+        this.roles = roles;
+    }
 }
 

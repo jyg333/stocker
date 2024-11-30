@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Component
 public class JwtProvider {
     private static final Logger logger = LogManager.getLogger(JwtProvider.class);
-//    @Value("${jwt.secret}")
+
     private final KeyPair keyPair;
     private static final String AUTHORITIES_KEY = "Authentication";
     private static final String BEARER_TYPE = "Bearer";
@@ -42,16 +42,12 @@ public class JwtProvider {
     public JwtProvider(KeyPairManager keyPairManager,@Value("${keys.private}") String privateKeyPath,
     @Value("${keys.public}") String publicKeyPath
                        ) throws Exception {
-        logger.info("TEST01");
         this.keyPair = keyPairManager.loadKeyPairFromPem(privateKeyPath, publicKeyPath);
-        logger.info("TEST02");
-//        logger.info(keyPairManager.getPrivateKey().toString());
-//        logger.info(keyPairManager.getPublicKey().toString());
     }
 
 
     public TokenDTO createToken(CreateTokenDto createTokenDto){
-//        validityInMilliseconds = 86400000;
+
         Authentication authentication = createTokenDto.getAuthentication();
 
         String id = authentication.getName();
@@ -65,7 +61,7 @@ public class JwtProvider {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        Claims claims = Jwts.claims().audience().add(createTokenDto.getPlatforms()).and().subject(createTokenDto.getName()).add("uuid",idx).add("userId",id).add("roles",authorities).add("ip",createTokenDto.getIpAddress()).build();
+        Claims claims = Jwts.claims().audience().add("stocker").and().subject(createTokenDto.getName()).add("uuid",idx).add("userId",id).add("roles",authorities).build();
 //        logger.info("createToken Claims : {}",claims);
         String accessToken = Jwts.builder()
                 .issuer("stocker")
@@ -134,20 +130,13 @@ public class JwtProvider {
     public Authentication getAuthentication(String accessToken){
         //Token decryption
         Claims claims = parseClaims(accessToken);
-        logger.info("getAuthentication Claims : {}",claims);
+//        logger.info("getAuthentication Claims : {}",claims);
 
         //Todo : 변경
         if(claims.getSubject()==null) {
             throw new RuntimeException("Token has no Authorization.");
         }
-        // 클레임에서 권한 정보 가져오기
-//        Collection<? extends GrantedAuthority> authorities =
-//                Arrays.stream(claims.get("roles").toString().split(","))
-//                        .map(SimpleGrantedAuthority::new)
-//                        .collect(Collectors.toList());
-//        logger.info("Provider authentication size : {}",authorities.size());
         // UserDetails 객체를 만들어서 Authentication 리턴
-
         List<GrantedAuthority> authorities = getGrantedAuthorities(claims);
 
 //        UserDetails principal = new User(claims.getSubject(), "", authorities);
@@ -166,9 +155,7 @@ public class JwtProvider {
         for (String role : roles) {
             authorities.add( () -> role );
         }
-
         return authorities;
-
     }
 
 
@@ -179,8 +166,6 @@ public class JwtProvider {
             //Todo : 값 확인하기
             return e.getClaims();
         }
-
-
     }
 
 }

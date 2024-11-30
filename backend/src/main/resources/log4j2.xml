@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+
+    <Properties>
+        <Property name="FILE_LOG_PATTERN">%d{yyyy-MM-dd_HH:mm:ss.SSS} %level [%thread] [%logger:%line] ::: %msg%n</Property>
+    </Properties>
+    <Appenders>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <RollingFile name="LogToFile" fileName="logs/application.log"
+                     filePattern="logs/application_%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${sys:FILE_LOG_PATTERN}" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <DefaultRolloverStrategy>
+                <Delete basePath="logs" maxDepth="1">
+                    <IfAccumulatedFileCount exceeds="3"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 애플리케이션 로거 정의 -->
+
+        <!-- Root Logger: 모든 로그를 파일과 콘솔에 기록 -->
+        <Root level="info">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>

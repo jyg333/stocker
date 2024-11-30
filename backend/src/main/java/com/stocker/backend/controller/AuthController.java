@@ -26,7 +26,7 @@ import java.time.LocalDateTime;
 
 //Todo : Exception Handler 추가하기!!
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 

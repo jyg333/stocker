@@ -1,0 +1,1 @@
+### In Spring Boot projects, you might find a “util” package or folder where developers place utility classes to keep the codebase organized and modular.

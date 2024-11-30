@@ -38,11 +38,11 @@ public class MemberController {
 
     // pagination
     @GetMapping("/member-list")
-    public List<MemberAllListDto> getMemberListSen(@RequestHeader("Authorization") String authorizationHeader,
+    public List<MemberAllListDto> getMemberList(@RequestHeader("Authorization") String authorizationHeader,
                                                    @RequestParam(value = "limit", defaultValue = "10") Integer limit,
                                                    @RequestParam(value = "offset", defaultValue = "0") Integer offset){
         String token = authorizationHeader.replace("Bearer ", "");
-        return memberService.findAllSenMembers(token,limit, offset);
+        return memberService.findAllMembers(token,limit, offset);
     }
 
     @GetMapping("/member-count")
@@ -93,6 +93,8 @@ public class MemberController {
             throw new InternalServerErrorException("Internal Server Error : "+e.getMessage());
         }
     }
+    //Todo : 사용자 승인 with ROLE_ADMIN Authentication
+
     // 본인 정보 변경
     @PutMapping("/update/me")
     public HttpStatus putMyInfo(@RequestHeader("Authorization") String authorizationHeader,@Valid @RequestBody UpdateSimpleDto updateSimpleDto, Errors errors) throws Exception {
@@ -103,17 +105,16 @@ public class MemberController {
         String token = authorizationHeader.replace("Bearer ","");
             memberService.updateMyInfo(token, updateSimpleDto);
             return HttpStatus.OK;
-
     }
 
     //사용자 비밀번호 변경,todo : 권한 확인, 입력값 검사
     @PutMapping("/update/member-pw")
-    public ResponseEntity<Void> putPassword(@RequestHeader("Authorization") String authorizationHeader,@Valid @RequestBody UpdatePasswordDto updatePasswordDto, Errors errors, HttpServletRequest request){
+    public ResponseEntity<Void> putPassword(@RequestHeader("Authorization") String authorizationHeader,@Valid @RequestBody UpdatePasswordDto updatePasswordDto, Errors errors){
         if (errors.hasErrors()) {
             throw new UnprocessableEntityException("Request Body validation error.");
         }
         String token = authorizationHeader.replace("Bearer ","");
-        memberService.updatePassword(token, updatePasswordDto, request);
+        memberService.updatePassword(token, updatePasswordDto);
         return null;
     }
 

@@ -1,6 +1,8 @@
 "use client";
-import localFont from "next/font/local";
+// import localFont from "next/font/local";
 // import { Inter } from "next/font/google";
+import React from 'react';
+
 import "./globals.css";
 import { Provider } from "react-redux";
 import store, {persistor} from "./store/store"; // Redux store 경로

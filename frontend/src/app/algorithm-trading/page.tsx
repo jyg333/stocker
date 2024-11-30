@@ -1,7 +1,9 @@
 "use client"
-import React, {useEffect, useState} from 'react';
+// import React, {useEffect, useState} from 'react';
+import React from 'react';
+
 import Sidebar from "../components/SideBar";
-import axios from 'axios';
+// import axios from 'axios';
 const AlgorithmTrading = () => {
     const favoriteStocks = ['Stock 1', 'Stock 2', 'Stock 3', 'Stock 4', 'Stock 5'];
 

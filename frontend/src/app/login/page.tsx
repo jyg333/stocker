@@ -5,7 +5,7 @@ import axios from "axios";
 import Image from "next/image";
 import { AppDispatch } from '../store/store';
 import { useDispatch } from 'react-redux';
-import { setTokens } from '../features/authSlice';
+import {setMember, setTokens} from '../features/authSlice';
 import {setCookie} from '../utils/cookies'
 import {useRouter} from "next/navigation";
 
@@ -24,7 +24,7 @@ const LoginPage: React.FC = () => {
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { id, value } = e.target;
-        // console.log("handle input" ,id, value)
+
         setLoginForm((prev) => ({
             ...prev,
             [id]: value, // id는 input의 id 속성 (id 또는 password)
@@ -32,39 +32,41 @@ const LoginPage: React.FC = () => {
     };
 
 
+    // 로그인 요청하는 함수
     const requestLogin = async () => {
-        // 로그인 요청하는 함수
-        console.log("test :",loginForm)
+
         try {
             const response = await axios.post(
-                `http://192.168.219.101:8080/api/auth/login`,
+                `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/login`,
                 loginForm);
-            // ).then((res: any) => {
-            if (response.data.status_code === 417) {
+
+            const status_code :number = response.status
+            if (status_code === 417) {
                 alert(response.data.message);
+                return; //실패시 함수 종료
             }
             const data: any = response.data;
 
-
             // 서버에서 토큰을 받았다면 Redux 상태에 저장
-            if (data.accessToken && data.refreshToken) {
+            if (status_code ===200 &&data.accessToken && data.refreshToken) {
                 dispatch(setTokens({ accessToken: data.accessToken}));
-                console.log('Tokens saved in Redux:', data.accessToken, data.refreshToken);
-
+                dispatch(setMember(loginForm.id))
+                // console.log("Redux State after login:", store.getState());
 
                 setCookie('refresh_token', data.refreshToken); // Refresh Token도 저장
-                console.log('Tokens saved in Redux and Cookies (via cookies-next)');
+                // console.log('Tokens saved in Redux and Cookies (via cookies-next)');
+
+                // console.log("Saved Cookies:", document.cookie);
+
 
                 // router.push("/my-portfolio")
+                // 쿠키 저장 후 리다이렉트
+                setTimeout(() => {
+                    router.push('/my-portfolio');
+                }, 100); // 쿠키 저장이 반영될 때까지 대기
             } else {
                 alert('Invalid login credentials');
             }
-            console.log(data)
-
-            // const data: any = response.data;
-            // setBtnClickable(true);
-            // return data;
-            // // });
 
         } catch (error) {
             console.error(error);
@@ -73,6 +75,10 @@ const LoginPage: React.FC = () => {
         }
     };
 
+    const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault(); // 기본 제출 동작 방지
+        requestLogin(); // 로그인 요청
+    };
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -96,9 +102,9 @@ const LoginPage: React.FC = () => {
                 <div className="flex-1 flex items-center justify-center bg-gray-100">
                     <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-8">
                         <h2 className="text-3xl font-bold text-center text-gray-800 mb-6">Login</h2>
-                        <form onSubmit={(e) => e.preventDefault()}>
+                        <form onSubmit={handleFormSubmit}>
                             <div className="mb-4">
-                                <label htmlFor="email" className="block text-gray-700 font-medium mb-2">
+                                <label htmlFor="id" className="block text-gray-700 font-medium mb-2">
                                     Email
                                 </label>
                                 <input
@@ -125,7 +131,7 @@ const LoginPage: React.FC = () => {
                             </div>
                             <div className="flex items-center justify-between mb-6">
                                 <button
-                                    type="button"
+                                    type="submit"
                                     onClick={requestLogin}
                                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >

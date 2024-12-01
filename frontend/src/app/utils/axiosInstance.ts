@@ -17,12 +17,20 @@ axiosInstance.interceptors.request.use(
     (config) => {
         const state :RootState = store.getState(); // Redux 상태 가져오기
         const accessToken = state.auth?.accessToken; // Redux에서 accessToken 가져오기
-
-
-        if (accessToken) {
-            // Header에 Authorization 추가
-            config.headers['Authorization'] = `Bearer ${accessToken}`;
+        if (config.headers) {
+            config.headers.set("Authorization", accessToken ? `Bearer ${accessToken}` : "");
+            config.headers.set("Custom-Header", "CustomValue");
+            config.headers.set("Content-Type", "application/json");
         }
+
+
+        // config.headers = {
+        //     ...config.headers, // 기존 헤더 유지
+        //     Authorization: accessToken ? `Bearer ${accessToken}` : undefined, // 조건부 Authorization 추가
+        //     'Custom-Header': 'CustomValue', // 커스텀 헤더 추가
+        //     'Content-Type': 'application/json', // Content-Type 설정
+        // };
+
         return config;
     },
     (error) => {
@@ -62,6 +70,7 @@ axiosInstance.interceptors.response.use(
 
                 // 기존 요청에 새로운 토큰 추가
                 originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+
 
                 // 기존 요청 재전송
                 return axios(originalRequest);

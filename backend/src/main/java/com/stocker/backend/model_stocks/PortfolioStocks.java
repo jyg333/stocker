@@ -1,4 +1,4 @@
-package com.stocker.backend.model.stocks;
+package com.stocker.backend.model_stocks;
 
 import jakarta.persistence.*;
 import lombok.*;

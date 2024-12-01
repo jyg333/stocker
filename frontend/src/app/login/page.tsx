@@ -13,6 +13,10 @@ type LoginFormType = {
     id: string,
     password :string;
 }
+type LoginResponse = {
+    accessToken: string;
+    refreshToken: string;
+}
 
 const LoginPage: React.FC = () => {
     const router = useRouter();
@@ -41,11 +45,12 @@ const LoginPage: React.FC = () => {
                 loginForm);
 
             const status_code :number = response.status
+            console.log("test",status_code)
             if (status_code === 417) {
                 alert(response.data.message);
                 return; //실패시 함수 종료
             }
-            const data: any = response.data;
+            const data = response.data as LoginResponse;
 
             // 서버에서 토큰을 받았다면 Redux 상태에 저장
             if (status_code ===200 &&data.accessToken && data.refreshToken) {
@@ -70,7 +75,6 @@ const LoginPage: React.FC = () => {
 
         } catch (error) {
             console.error(error);
-            // setBtnClickable(true);
             return null;
         }
     };
@@ -140,7 +144,7 @@ const LoginPage: React.FC = () => {
                             </div>
                         </form>
                         <p className="text-gray-600 text-center">
-                            Don't have an account? <a href="#" className="text-blue-600 hover:underline">Sign up</a>
+                            Do not have an account? <a href="#" className="text-blue-600 hover:underline">Sign up</a>
                         </p>
                     </div>
                 </div>

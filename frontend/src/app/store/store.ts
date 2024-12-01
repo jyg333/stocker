@@ -3,7 +3,7 @@ import counterReducer from '../features/counterSlice';
 import authReducer from '../features/authSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import thunk from 'redux-thunk';
+// import thunk from 'redux-thunk';
 
 // Redux Persist Configuration
 const persistConfig = {
@@ -36,7 +36,6 @@ const store = configureStore({
                     'persist/PURGE',
                 ],
             },
-            thunk,
         }),
 });
 

@@ -2,7 +2,7 @@ import React from 'react';
 
 const LogoutPopup: React.FC<{ onConfirm: () => void; onCancel: () => void }> = ({ onConfirm, onCancel }) => {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex justify-center items-center">
             <div className="bg-white rounded-lg shadow-lg p-6 w-80">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">Logout</h2>
                 <p className="text-gray-600 mb-6">로그아웃 하시겠습니까?</p>

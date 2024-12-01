@@ -27,7 +27,7 @@ const NavBar = () => {
     };
 
     return (
-        <div>
+        <div className={"relative z-50"}>
             <div className="flex justify-between items-center mt-2 mx-2">
                 {/* 로고 - 왼쪽 */}
                 <a

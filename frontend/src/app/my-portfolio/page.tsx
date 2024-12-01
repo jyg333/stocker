@@ -3,18 +3,16 @@ import React, {useEffect, useState} from 'react';
 import Sidebar from "../components/SideBar";
 import axiosInstance from "../utils/axiosInstance";
 import SavePopup from "./SavePopup";
-
-
+import Chart from "react-apexcharts";
 
 const MyPortfolio = () => {
-
-
 
     // Axios를 사용해서 getData
     const [favoriteStocks, setFavoriteStocks] = useState<string[]>([]); // 즐겨찾기 목록 상태
     const [symbol, setSymbol] = useState<string>('');
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태
+    const [chartData, setChartData] = useState<any[]>([]);
 
     useEffect(() => {
         const fetchFavoriteStocks = async () => {
@@ -86,14 +84,54 @@ const MyPortfolio = () => {
         setIsPopupOpen(false); // 팝업 닫기
     };
 
+    // Symbol 선택 시 데이터 로드
+    const handleSymbolSelect = async (selectedSymbol: string) => {
+        try {
+            setIsLoading(true); // 로딩 시작
+            setSymbol(selectedSymbol); // 현재 선택된 Symbol 설정
 
+            const response = await axiosInstance.get(`/api/portfolio/chart-data/${selectedSymbol}`);
 
+            // 데이터를 ApexCharts 형식으로 변환
+            const formattedData = response.data.map((stock) => ({
+                name: stock.symbol,
+                data: stock.prices.map((price) => ({ x: price.date, y: price.price })),
+            }));
+
+            setChartData(formattedData); // 차트 데이터 업데이트
+        } catch (error) {
+            console.error("Error loading chart data:", error);
+            alert("차트 데이터를 가져오는 데 실패했습니다.");
+        } finally {
+            setIsLoading(false); // 로딩 종료
+        }
+    };
+
+    const handleDeleteSymbol = (symbol: string) => {
+        setFavoriteStocks((prevStocks) => prevStocks.filter((stock) => stock !== symbol));
+    };
+
+    // 차트 옵션 설정
+    const chartOptions = {
+        chart: {
+            id: "portfolio-chart",
+            zoom: { enabled: true },
+        },
+        xaxis: { type: "category", title: { text: "Days" } },
+        yaxis: { title: { text: "Price" } },
+        tooltip: { shared: true, intersect: false },
+        stroke: { curve: "smooth" },
+    };
 
     return (
         <div className="flex text-black">
 
             {/* FavoriteSidebar에 리스트 데이터를 전달 */}
-            <Sidebar items={favoriteStocks}/>
+            <Sidebar
+                items={favoriteStocks}
+                onSymbolSelect={handleSymbolSelect} // 선택 시 호출될 함수
+                onDelete={handleDeleteSymbol} // 삭제 핸들러 전달
+            />
 
 
             {/* 메인 콘텐츠 ml-20 고정 -> sidebar 길이 변경*/}
@@ -117,33 +155,41 @@ const MyPortfolio = () => {
                     </div>
                 </div>
                 <div className={"mt-4"}>
-                    <h1 className="text-2xl font-bold">Graph Content</h1>
-                    <p>Here is the main content of the page.</p>
-                </div>
-            </div>
-            {/* 로딩 상태 표시 */}
-            <div className="mt-4">
-                {isLoading ? (
-                    <p>Loading your favorite stocks...</p>
-                ) : (
-                    <div>
-                        <h2 className="text-lg font-bold">즐겨찾기 목록</h2>
-                        {favoriteStocks.length > 0 ? (
-                            <ul>
-                                {favoriteStocks.map((stock, index) => (
-                                    <li key={index} className="py-2">
-                                        {stock}
-                                    </li>
-                                ))}
-                            </ul>
+                    {/*<h1 className="text-2xl font-bold">Graph Content</h1>*/}
+                    {/*<p>Here is the main content of the page.</p>*/}
+                    {/* 차트 표시 */}
+                    <div className="mt-4">
+                        <h2 className="text-2xl font-bold mb-4">주식 차트</h2>
+                        {isLoading ? (
+                            <p>Loading charts...</p>
                         ) : (
-                            <p>즐겨찾기 목록이 비어 있습니다.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {chartData.map((data, index) => (
+                                    <div key={index} className="bg-white shadow-md rounded-lg p-4">
+                                        <h3 className="text-lg font-bold text-gray-800 mb-2">
+                                            {data.name}
+                                        </h3>
+                                        <Chart
+                                            options={chartOptions}
+                                            series={[{ name: data.name, data: data.data }]}
+                                            type="line"
+                                            height={300}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                         )}
                     </div>
-                )}
+                </div>
+
             </div>
 
-            {/* 저장 팝업 */}
+
+
+
+
+
+    {/* 저장 팝업 */}
             <SavePopup
                 isOpen={isPopupOpen}
                 onClose={handleCancel}

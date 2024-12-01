@@ -1,20 +1,23 @@
 package com.stocker.backend.controller;
 
-import com.stocker.backend.model.dto.request.UpdateDetailDto;
-import com.stocker.backend.model.stocks.StockRegisterDto;
+import com.stocker.backend.exceptionHandling.ForbiddenException;
+import com.stocker.backend.model.dto.response.SearchResultDto;
+import com.stocker.backend.model_stocks.StockRegisterDto;
+import com.stocker.backend.repository.MemberFavoriteRepository;
 import com.stocker.backend.service.PortfolioService;
-import jakarta.servlet.http.HttpServletRequest;
+import com.stocker.backend.utils.JwtProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.function.EntityResponse;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,28 +25,50 @@ import java.net.MalformedURLException;
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
+    private final MemberFavoriteRepository memberFavoriteRepository;
+    private static final Logger logger = LogManager.getLogger(PortfolioController.class);
+    private final JwtProvider jwtProvider;
 
     //Search Bar를 통한 주식 검색
     @GetMapping("/search/{symbol}")
-    public EntityResponse<String> searchStock(@PathVariable("symbol") String symbol) throws IOException {
-        System.out.println("Symbol : "+symbol);
-
-        portfolioService.searchSymbol(symbol);
-        return null;
+    public ResponseEntity<SearchResultDto> searchStock(@PathVariable("symbol") String symbol) throws IOException {
+        //todo : header 검사
+        return portfolioService.searchSymbol(symbol);
     }
 
     // 즐겨찾기 등록
     @PostMapping("/add-favorite")
-    public HttpStatus registerStock(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody StockRegisterDto stockRegisterDto, Errors errors, HttpServletRequest request) throws MalformedURLException {
-
-        boolean result = portfolioService.registerFavorite(stockRegisterDto);
+    public ResponseEntity registerStock(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody StockRegisterDto stockRegisterDto, Errors errors) throws MalformedURLException {
+        String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)){
+            //403
+            logger.error("Invalid Request JWT is weired");
+            throw new ForbiddenException("No Permission");
+        }
+        String id = (String) jwtProvider.parseClaims(token).get("userId");
+        logger.info(stockRegisterDto);
+        boolean result = portfolioService.registerFavorite(stockRegisterDto, id);
 
         if (result){
-            return HttpStatus.OK;
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Register Favorite is Success");
         } else {
             //304
-            return HttpStatus.NOT_MODIFIED;
+            return ResponseEntity.status(HttpStatus.ALREADY_REPORTED).body("Register Favorite is already exist");
         }
+    }
+    // Get Favorite List
+    @GetMapping("/get-favorite")
+    public ResponseEntity getFavorite(@RequestHeader("Authorization") String authorizationHeader){
+        String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)){
+            //403
+            logger.error("Invalid Request JWT is weired");
+            throw new ForbiddenException("No Permission");
+        }
+        String id = (String) jwtProvider.parseClaims(token).get("userId");
+        List<String> data = memberFavoriteRepository.findSymbolsById(id);
+        System.out.println(data);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(data);
     }
 
     //Graph Data 조회

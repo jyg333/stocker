@@ -33,6 +33,9 @@ public class PortfolioStocks {
     @Column(name = "per")
     private Float per;
 
+    @Column(name = "volume")
+    private Long volume;
+
     @Column(name = "net_income_ratio")
     private Float netIncomeRatio;
 

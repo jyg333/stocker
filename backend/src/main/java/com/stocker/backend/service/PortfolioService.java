@@ -8,6 +8,8 @@ import com.stocker.backend.model.dto.response.SearchResultDto;
 import com.stocker.backend.model_stocks.MemberFavorite;
 import com.stocker.backend.model_stocks.PortfolioStocks;
 import com.stocker.backend.model_stocks.StockRegisterDto;
+import com.stocker.backend.model_stocks.response.ChartDataDto;
+import com.stocker.backend.model_stocks.response.ChartDataResponse;
 import com.stocker.backend.repository.MemberFavoriteRepository;
 import com.stocker.backend.repository.PortfolioRepository;
 import lombok.RequiredArgsConstructor;
@@ -66,11 +68,8 @@ public class PortfolioService {
             return true;
         } else {
             logger.info("Favorite is already exist ID : {}, Symbol : {}",id, symbol);
-
             return false;
-
         }
-
     };
 
     public ResponseEntity<SearchResultDto> searchSymbol(String symbol) throws IOException {
@@ -151,6 +150,13 @@ public class PortfolioService {
 
     }
 
+    public List<ChartDataResponse> getFinanceData(String symbol){
+        List<ChartDataDto> result = portfolioRepository.findFinancialRatiosBySymbol(symbol);
+        logger.info(result);
+
+        return transformData(result);
+    }
+
 
 
     //float 변환 메서드
@@ -169,5 +175,41 @@ public class PortfolioService {
             System.err.println("Float 변환 실패: " + floatObj);
         }
         return null;
+    }
+
+    public List<ChartDataResponse> transformData(List<ChartDataDto> rawData) {
+        // 변환할 카테고리 정의
+        String[] categories = {"EPS", "PER", "Net Income Ratio"};
+
+        List<ChartDataResponse> chartDataList = new ArrayList<>();
+
+        for (String category : categories) {
+            List<ChartDataResponse.PriceData> prices = new ArrayList<>();
+
+            for (ChartDataDto dto : rawData) {
+                Float value = null;
+
+                switch (category) {
+                    case "EPS":
+                        value = dto.getEps();
+                        break;
+                    case "PER":
+                        value = dto.getPer();
+                        break;
+                    case "Net Income Ratio":
+                        value = dto.getNetIncomeRatio();
+                        break;
+                }
+
+                prices.add(new ChartDataResponse.PriceData(
+                        dto.getAccountDate().toString(), // LocalDate -> String
+                        value
+                ));
+            }
+
+            chartDataList.add(new ChartDataResponse(category, prices));
+        }
+
+        return chartDataList;
     }
 }

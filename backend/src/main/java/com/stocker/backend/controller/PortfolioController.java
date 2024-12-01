@@ -3,6 +3,7 @@ package com.stocker.backend.controller;
 import com.stocker.backend.exceptionHandling.ForbiddenException;
 import com.stocker.backend.model.dto.response.SearchResultDto;
 import com.stocker.backend.model_stocks.StockRegisterDto;
+import com.stocker.backend.model_stocks.response.ChartDataResponse;
 import com.stocker.backend.repository.MemberFavoriteRepository;
 import com.stocker.backend.service.PortfolioService;
 import com.stocker.backend.utils.JwtProvider;
@@ -67,12 +68,21 @@ public class PortfolioController {
         }
         String id = (String) jwtProvider.parseClaims(token).get("userId");
         List<String> data = memberFavoriteRepository.findSymbolsById(id);
-        System.out.println(data);
+
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(data);
     }
 
     //Graph Data 조회
-
+    @GetMapping("/chart-data/{symbol}")
+    public List<ChartDataResponse> getChartData(@PathVariable("symbol") String symbol, @RequestHeader("Authorization") String authorizationHeader){
+        String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)){
+            //403
+            logger.error("Invalid Request JWT is weired");
+            throw new ForbiddenException("No Permission");
+        }
+        return portfolioService.getFinanceData(symbol);
+    }
     //Comment 남기는 기능
 
     // 뉴스링크 스르랩 기능 -> nullable

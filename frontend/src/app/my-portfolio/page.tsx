@@ -4,6 +4,7 @@ import Sidebar from "../components/SideBar";
 import axiosInstance from "../utils/axiosInstance";
 import SavePopup from "./SavePopup";
 import Chart from "react-apexcharts";
+import Comment from "./Comment";
 
 const MyPortfolio = () => {
 
@@ -13,6 +14,11 @@ const MyPortfolio = () => {
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태
     const [chartData, setChartData] = useState<any[]>([]);
+
+    // 댓글 관련 상태
+    const [comments, setComments] = useState<{ datetime: string; content: string; reference: string }[]>([]);
+    const [newComment, setNewComment] = useState<string>("");
+    const [newReference, setNewReference] = useState<string>("");
 
     useEffect(() => {
         const fetchFavoriteStocks = async () => {
@@ -110,6 +116,21 @@ const MyPortfolio = () => {
     const handleDeleteSymbol = (symbol: string) => {
         setFavoriteStocks((prevStocks) => prevStocks.filter((stock) => stock !== symbol));
     };
+    // 댓글 추가 처리
+    const handleAddComment = () => {
+        if (!newComment.trim()) {
+            alert("댓글 내용을 입력하세요.");
+            return;
+        }
+
+        const currentDatetime = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
+        setComments((prevComments) => [
+            ...prevComments,
+            { datetime: currentDatetime, content: newComment, reference: newReference },
+        ]);
+        setNewComment(""); // 입력 초기화
+        setNewReference("");
+    };
 
     // 차트 옵션 설정
     const chartOptions = {
@@ -124,6 +145,7 @@ const MyPortfolio = () => {
     };
 
     return (
+        <div>
         <div className="flex text-black">
 
             {/* FavoriteSidebar에 리스트 데이터를 전달 */}
@@ -182,14 +204,13 @@ const MyPortfolio = () => {
                     </div>
                 </div>
 
+                {/*/!* 댓글 컴포넌트 *!/*/}
+                {/*{symbol && <Comment symbol={symbol} />}*/}
+
             </div>
 
 
-
-
-
-
-    {/* 저장 팝업 */}
+            {/* 저장 팝업 */}
             <SavePopup
                 isOpen={isPopupOpen}
                 onClose={handleCancel}
@@ -198,6 +219,15 @@ const MyPortfolio = () => {
                 symbol={symbol}
             />
         </div>
+        <div className={"text-black px-4 pb-4"}>
+            {/* 댓글 컴포넌트 */}
+            {symbol && (
+                <div className="w-full border-t border-gray-300 mt-4">
+                    <Comment symbol={symbol} />
+                </div>
+            )}
+        </div>
+    </div>
     );
 
 };

@@ -14,4 +14,6 @@ public interface PortfolioRepository extends JpaRepository<PortfolioStocks, Inte
     @Query("SELECT new com.stocker.backend.model_stocks.response.ChartDataDto(p.eps, p.per, p.netIncomeRatio, p.accountDate) " +
             "FROM PortfolioStocks p WHERE p.symbol = :symbol")
     List<ChartDataDto> findFinancialRatiosBySymbol(String symbol);
+
+
 }

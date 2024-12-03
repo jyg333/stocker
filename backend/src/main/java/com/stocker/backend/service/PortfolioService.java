@@ -147,12 +147,21 @@ public class PortfolioService {
 
             }
         }
-
     }
+
+
+    //delete favorite
+    public boolean deleteSymbol(String id, String symbol){
+
+        int rowsDeleted = memberFavoriteRepository.deleteByIdAndSymbol(id, symbol);
+        logger.info("Delete rows num : {}", rowsDeleted);
+        return rowsDeleted > 0;
+    }
+
 
     public List<ChartDataResponse> getFinanceData(String symbol){
         List<ChartDataDto> result = portfolioRepository.findFinancialRatiosBySymbol(symbol);
-        logger.info(result);
+//        logger.info(result);
 
         return transformData(result);
     }

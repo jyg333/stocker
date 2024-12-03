@@ -47,7 +47,7 @@ public class PortfolioController {
             throw new ForbiddenException("No Permission");
         }
         String id = (String) jwtProvider.parseClaims(token).get("userId");
-        logger.info(stockRegisterDto);
+//        logger.info(stockRegisterDto);
         boolean result = portfolioService.registerFavorite(stockRegisterDto, id);
 
         if (result){
@@ -89,4 +89,22 @@ public class PortfolioController {
 
 
     //삭제
+    @DeleteMapping("/delete/{symbol}")
+    public ResponseEntity<?> deleteFavorite(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String symbol){
+    String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)){
+        //403
+        logger.error("Invalid Request JWT is weired");
+        throw new ForbiddenException("No Permission");
+        }
+        String id = (String) jwtProvider.parseClaims(token).get("userId");
+        boolean result = portfolioService.deleteSymbol(id, symbol);
+
+        if (result) {
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body("Symbol deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Symbol not found or not authorized.");
+        }
+
+    }
 }

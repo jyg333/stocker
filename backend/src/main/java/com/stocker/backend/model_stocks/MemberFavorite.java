@@ -26,4 +26,7 @@ public class MemberFavorite {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt; // 업데이트 시간 (DATETIME, NULL 가능)
 
+    @Column(name = "al_status")
+    private Boolean alStatus; // 활성 상태 (BOOLEAN, NULL 가능)
+
 }

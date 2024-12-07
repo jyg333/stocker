@@ -62,9 +62,8 @@ public class SecurityConfig {
                 )
                 // 로그인, 회원가입, reissue API 는 토큰이 없는 상태에서 요청이 들어오기 때문에 permitAll 설정
                 .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                        .requestMatchers("/auth/**","/auth/reissue","/api/**","/otp/**").permitAll()
+                        .requestMatchers("/auth/**","/auth/reissue","/api/**").permitAll()
                         .requestMatchers("/member/member-list").hasAnyAuthority("ROLE_ADMIN","ROLE_OBSERVER")
-                        .requestMatchers("/inspection/**").hasAnyAuthority("ROLE_ADMIN","ROLE_OBSERVER")
 //                        .requestMatchers("/auth/reissue").access(new WebExpressionAuthorizationManager("hasRole('ADMIN')"))
 //                        .requestMatchers(PathRequest.toH2Console()).permitAll()
                         .anyRequest().authenticated() // 로그인한 모든 사용자에게 허용, anyRequest 가장 마지막에 적용해야하는 부분임

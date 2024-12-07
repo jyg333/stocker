@@ -3,6 +3,7 @@ package com.stocker.backend.model_stocks;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder
+@Data
 @Table(name = "member_favorite")
 public class MemberFavorite {
 

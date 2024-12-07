@@ -1,6 +1,7 @@
 package com.stocker.backend.repository;
 
 import com.stocker.backend.model_stocks.MemberFavorite;
+import com.stocker.backend.model_stocks.response.MemberFavoriteDto;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,6 +18,12 @@ public interface MemberFavoriteRepository  extends JpaRepository<MemberFavorite,
 
     @Query("SELECT mf.symbol FROM MemberFavorite mf WHERE mf.id = :id")
     List<String> findSymbolsById(@Param("id") String id);
+
+    //with al_status
+    @Query("SELECT m.symbol AS symbol, m.alStatus AS alStatus FROM MemberFavorite m WHERE m.id = :id")
+    List<MemberFavoriteDto> findByIdWithSymbolAndStatus(String id);
+
+    MemberFavorite findByIdAndSymbol(String id, String symbol);
 
     @Modifying
     @Transactional

@@ -18,7 +18,7 @@ public class AlTradeResult {
 
     @ManyToOne
     @JoinColumn(name = "trade_idx", referencedColumnName = "idx", nullable = false)
-    private AlTrade trade;
+    private AlTrade tradeIdx;
 
     @Column(name = "symbol", nullable = false)
     private String symbol; // 1: Buy, 2: Sell, 3: Hold

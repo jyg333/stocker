@@ -13,11 +13,16 @@ import java.util.List;
 @Repository
 public interface AlTradeRepository extends JpaRepository<AlTrade, Integer> {
 
+
+    //무결성 관리를 위한 alId 선언에 따른 parameter 수정
     @Query("""
            SELECT new com.stocker.backend.model_stocks.response.AmountDto(at.initAmount, at.curAmount)
            FROM AlTrade at
            WHERE at.symbol = :symbol
+           AND at.alId.alId = :alId
            """)
-    List<AmountDto> findBySymbolInitAndCurAmount(@Param("symbol") String symbol, @Param("al_id") Integer alId);
+    AmountDto findBySymbolInitAndCurAmount(@Param("symbol") String symbol, @Param("alId") Byte alId);
+
+    AlTrade findByIdAndSymbol(String id, String symbol);
 }
 

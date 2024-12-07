@@ -24,7 +24,7 @@ public class AlTrade {
 
     @ManyToOne
     @JoinColumn(name = "al_id", referencedColumnName = "al_id", nullable = false)
-    private AlTypes alType;
+    private AlTypes alId;
 
     @Column(name = "init_amount", nullable = false)
     private Long initAmount;

@@ -4,6 +4,7 @@ import com.stocker.backend.exceptionHandling.ForbiddenException;
 import com.stocker.backend.model.dto.response.SearchResultDto;
 import com.stocker.backend.model_stocks.StockRegisterDto;
 import com.stocker.backend.model_stocks.response.ChartDataResponse;
+import com.stocker.backend.model_stocks.response.MemberFavoriteDto;
 import com.stocker.backend.repository.MemberFavoriteRepository;
 import com.stocker.backend.service.PortfolioService;
 import com.stocker.backend.utils.JwtProvider;
@@ -71,6 +72,23 @@ public class PortfolioController {
 
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(data);
     }
+
+    //with status
+    @GetMapping("/get-al-favorite")
+    public ResponseEntity getAlFavorite(@RequestHeader("Authorization") String authorizationHeader){
+
+        String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)){
+            //403
+            logger.error("Invalid Request JWT is weired");
+            throw new ForbiddenException("No Permission");
+        }
+        String id = (String) jwtProvider.parseClaims(token).get("userId");
+        List<MemberFavoriteDto> data = memberFavoriteRepository.findByIdWithSymbolAndStatus(id);
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(data);
+    }
+
 
     //Graph Data 조회
     @GetMapping("/chart-data/{symbol}")

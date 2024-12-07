@@ -14,7 +14,7 @@ import java.util.List;
 public interface AlTradeResultRepository extends JpaRepository<AlTradeResult, Integer> {
 
     // 특정 거래(AlTrade)와 관련된 결과 조회
-    List<AlTradeResult> findByTradeIdx(Integer tradeIdx);
+//    List<AlTradeResult> findByTradeIdx(Integer tradeIdx);
 
     @Query(value = """
        SELECT DATE(traded_at) AS trade_date, profit_loss

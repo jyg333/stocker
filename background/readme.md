@@ -1,0 +1,1 @@
+execute python .venv : $ source .venv/bin/activate

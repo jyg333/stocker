@@ -1,10 +1,14 @@
+from src.scheduler import get_scheduler
+from src.logger import logger
+import os
+from datetime import datetime
 
 def typeName():
-    # 설정 시간 마다 자동처리 서버 DB를 확인하여 new, update, delete 할 대상을 확인
+
     try:
-        logger.info("Parsing Auto-Process-Server Database")
+        logger.info("Init process")
         get_scheduler().add_job(
-            parsePRCD,
+            altypeOne,
             "interval",
             minutes=int(os.getenv("CHECK_CYCLE")),
             id="parse",

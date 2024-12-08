@@ -2,7 +2,7 @@ import asyncio
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from src.logger import logger
-from src.utils.status import update_status
+
 
 scheduler = AsyncIOScheduler()
 
@@ -22,15 +22,20 @@ def job_listener(job):
 
 
         #todo : create_tast() 에 해당 조건에 실행할 메서드 담기
-        if job.job_id == "al_id01":
-            asyncio.create_task()
+        if job.job_id == "al_id1":
+            asyncio.create_task(some_async_task_01)
 
         elif job.job_id == "al_id02":
-            asyncio.create_task()
+            asyncio.create_task(some_async_task_02)
 
     else:
-        if job.job_id == "al_id01":
-            asyncio.create_task()
+        if job.job_id == "al_id1":
+            asyncio.create_task(some_async_task_01)
 
         elif job.job_id == "al_id02":
-            asyncio.create_task()
+            asyncio.create_task(some_async_task_02)
+async def some_async_task_01():
+    logger.info("Executing Task 01...")
+
+async def some_async_task_02():
+    logger.info("Executing Task 02...")

@@ -45,20 +45,71 @@ async def altypeOne():
                 # 모든 change_ratio가 양수인지 확인
                 all_positive = all(r3d["change_ratio"] > 0 for r3d in recent_3_days)
                 two_negative = all(r2d["change_ratio"] < 0 for r2d in recent_2_days)
-                main_logger.info(f"positive negative result : {all_positive} {two_negative}")
+
+                main_logger.info(f"positive negative result : positive : {all_positive}, nagative : {two_negative}")
                 trade_type: int
-                if all_positive:
-                    trade_type = 1
-                elif  two_negative: trade_type = 2
-                else: trade_type = 31
-                trade_amount = row["cur_amount"]
-                result_params = (row["idx"], symbol,trade_type ,)
-                result_query = "INSERT INTO al_trade_result (trade_idx, symbol,trade_type, trade_amount, trade_price,profix_loss)" \
+
+                idx = row['idx']
+                cur_amount = row["cur_amount"]
+                buy_amount = row['buy_amount']
+                init_amount = row["init_amount"]
+                main_logger.info(f"Exist buy amount : {buy_amount}")
+                profit_loss = 0
+
+                #이미 구매한 경우 hold : 3
+                if all_positive and buy_amount:
+                    trade_type = 3#hold
+                    profit_loss = (cur_amount + buy_amount) // init_amount
+                    result_params = (idx, symbol, trade_type, None, None, profit_loss)
+                # 기존거래 없음 및 구매조건 true
+                elif all_positive and not buy_amount:
+
+                    trade_type = 1 #hold
+                    #기존에 거래가 없기 때문에 거래 로직 시작
+                    cur_price = await requestCurprice(symbol)
+
+                    buy_amount :float = (cur_amount // cur_price) * cur_price
+                    cur_amount = cur_amount - buy_amount
+                    main_logger.info(f"Buy amount : {buy_amount} || cur_amount : {cur_amount}")
+                    update_params = (cur_amount, buy_amount, row['idx'])
+                    update_query = "UPDATE al_trade set cur_amount = %s, buy_amont = %s WHERE idx=%s"
+                    await database_instance.execute(update_query, update_params)
+
+                    profit_loss = ((cur_amount+ buy_amount) / init_amount) * 100
+                    result_params = (idx, symbol, trade_type, sell_amount, cur_price, profit_loss)
+
+
+                # 판매 조건 true and 기존거래 존재
+                elif two_negative and  buy_amount:
+                    # 판매 로직 구현
+                    trade_type = 2
+                    cur_price = await requestCurprice(symbol)
+                    cur_amount = row["cur_amount"]
+
+                    sell_amount: float = (buy_amount // cur_price) * cur_price
+                    cur_amount = cur_amount + sell_amount
+                    main_logger.info(f"Sell amount : {sell_amount} || cur_amount : {cur_amount}")
+                    update_query = "UPDATE al_trade set cur_amount = %s, buy_amount = %s WHERE idx=%s"
+                    update_params = (cur_amount, None, row['idx'])
+                    await database_instance.execute(update_query, update_params)
+                    profit_loss = (cur_amount / init_amount) * 100
+
+                    result_params = (idx, symbol, trade_type, sell_amount, cur_price, profit_loss)
+
+                else:
+                    trade_type = 3.
+                    profit_loss = (cur_amount / init_amount) * 100
+                    result_params = (idx, symbol, trade_type, None, None, profit_loss)
+                    logger.info("Stay Condition")
+
+
+                result_query = "INSERT INTO al_trade_result (trade_idx, symbol,trade_type, trade_amount, trade_price,profit_loss)" \
                                "values (%s, %s,%s,%s,%s,%s)"
-                database_instance.execute(result_query, params=result_params)
+                await database_instance.execute(result_query, params=result_params)
+                main_logger.info(f"Execute al_id1 : {idx}")
 
 
-        # print(rows)
+
 
         return rows
     except Exception as e:
@@ -119,6 +170,34 @@ async def request2FMP():
     except Exception as e:
         logger.error("Failed to fetch all al_trade rows: %s", e)
         raise
+
+# 거래 조건 성립 시 API 요청하여 현재가격으로 매매
+async def requestCurprice(symbol : str) -> float:
+    current_price_url = f"https://financialmodelingprep.com/api/v3/quote/{symbol}?apikey={api_key}"
+
+    try:
+
+        response = requests.get(current_price_url)
+
+        if response.status_code == 200:
+            api_data = response.json()
+
+            current_price = api_data[0]["price"]
+
+            logger.info(f"current_price is : {current_price}")
+            return current_price
+        else:
+            main_logger.error(f"Error get current price with status code : {response.status_code}")
+    except requests.exceptions.Timeout:
+            main_logger.error(f"Request timed out for symbol: {symbol}")
+    except requests.exceptions.ConnectionError:
+        main_logger.error(f"Connection error occurred for symbol: {symbol}")
+    except requests.exceptions.HTTPError as http_err:
+        main_logger.error(f"HTTP error occurred for symbol: {symbol} - {http_err}")
+    except requests.exceptions.RequestException as req_err:
+        main_logger.error(f"Request error occurred for symbol: {symbol} - {req_err}")
+    except Exception as e:
+        main_logger.error(f"An unexpected error occurred for symbol: {symbol} - {e}")
 
 
 async def saveVolume(api_data : list):

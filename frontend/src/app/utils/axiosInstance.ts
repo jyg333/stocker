@@ -63,14 +63,13 @@ axiosInstance.interceptors.response.use(
                 const refreshResponse = await axios.post('/api/auth/refresh', null, {
                     withCredentials: true,
                 });
-                const newAccessToken = refreshResponse.data.accessToken;
+                const { accessToken: newAccessToken, auth_level } = refreshResponse.data;
 
                 // Redux 또는 로컬 상태에 새로운 Access Token 저장
-                store.dispatch(setTokens({ accessToken: newAccessToken }));
+                store.dispatch(setTokens({ accessToken: newAccessToken, auth_level }));
 
                 // 기존 요청에 새로운 토큰 추가
                 originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
-
 
                 // 기존 요청 재전송
                 return axios(originalRequest);
@@ -83,6 +82,7 @@ axiosInstance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
 
 
 export default axiosInstance;

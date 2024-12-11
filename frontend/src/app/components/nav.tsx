@@ -6,10 +6,24 @@ import Image from "next/image";
 import store from "../store/store";
 import {clearTokens} from "../features/authSlice";
 import Popup from "./Popup";
-
+import {useSelector} from "react-redux";
+interface AuthState {
+    auth_level: string;
+    member: string;
+}
+interface RootState {
+    auth: AuthState;
+}
 const NavBar = () => {
     // const [dark, setDark] = useState<boolean>(false); // Initialize dark state to false
     const [isLogoutPopupOpen, setIsLogoutPopupOpen] = useState(false);
+
+
+    // Redux에서 auth_level 가져오기
+    const authLevel = useSelector((state: RootState) => state.auth.auth_level);
+    const memberId = useSelector((state: RootState) => state.auth.member);
+    // 권한에 따라 버튼 표시 여부 결정
+    const canViewManagementButton = ["301", "201"].includes(authLevel);
 
     const handleLogout = () => {
         // 로그아웃 로직 호출
@@ -31,7 +45,7 @@ const NavBar = () => {
             <div className="flex justify-between items-center mt-2 mx-2">
                 {/* 로고 - 왼쪽 */}
                 <a
-                    href="/"
+                    href="/my-portfolio"
                     className="cursor-pointer flex items-center space-x-3 rtl:space-x-reverse"
                 >
                     <Image
@@ -47,14 +61,41 @@ const NavBar = () => {
                 </a>
 
                 {/* 로그아웃 버튼 - 오른쪽 */}
-                <a className="text-xl font-bold text-black hover:text-white hover:bg-red-400 rounded-lg transition duration-300 px-4 py-2 cursor-pointer mr-2">
-                    <button onClick={() => setIsLogoutPopupOpen(true)}>Logout</button>
-                </a>
+                {/*<button*/}
+                {/*    onClick={goToManagementUserPage}*/}
+                {/*    className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"*/}
+                {/*>*/}
+                {/*    사용자 관리*/}
+                {/*</button>*/}
+                {/*<a className="text-xl font-bold text-black hover:text-white hover:bg-red-400 rounded-lg transition duration-300 px-4 py-2 cursor-pointer mr-2">*/}
+                {/*    <button onClick={() => setIsLogoutPopupOpen(true)}>Logout</button>*/}
+                {/*</a>*/}
+                {/* 사용자 관리 버튼과 로그아웃 버튼 - 오른쪽 */}
+                <div className="flex items-center space-x-4">
+                    <span className="text-xl font-medium text-black">
+                        {memberId}
+                    </span>
+                    {/* 사용자 관리 버튼: 권한이 맞는 경우에만 렌더링 */}
+                    {canViewManagementButton && (
+                        <a
+                            href="/management-user"
+                            className="text-xl font-bold text-black hover:text-white hover:bg-blue-400 rounded-lg transition duration-300 px-4 py-2 cursor-pointer"
+                        >
+                            사용자 관리
+                        </a>
+                    )}
+
+                    <a
+                        className="text-xl font-bold text-black hover:text-white hover:bg-red-400 rounded-lg transition duration-300 px-4 py-2 cursor-pointer"
+                    >
+                        <button onClick={() => setIsLogoutPopupOpen(true)}>Logout</button>
+                    </a>
+                </div>
             </div>
         <div className="bg-sky-100 h-16 rounded-lg flex items-center m-2 shadow-md">
 
             <ul className="w-full flex justify-around">
-                <NavItem href="/my-portfolio" label="My Portfolio" />
+                <NavItem href="/my-portfolio" label="My Stock Portfolio" />
                 <NavItem href="/algorithm-trading" label="Algorithm Trading" />
                 <NavItem href={null} label={null}/>
                 <NavItem href={null} label={null}/>

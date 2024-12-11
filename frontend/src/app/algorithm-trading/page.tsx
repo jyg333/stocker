@@ -6,6 +6,16 @@ import Sidebar from "../components/NewSideBar";
 import axiosInstance from "../utils/axiosInstance";
 import chartOptions from "../components/chartOptions2";
 import UpdateStatusPopup from './UpdateStatusPopup';
+import {AxiosError} from "axios";
+
+interface ChartDataItem {
+    name: string;
+    data: { x: number; y: number }[];
+}
+interface TradeResult {
+    tradeDate: string;
+    profitLoss: number | null;
+}
 
 const AlgorithmTrading = () => {
 
@@ -14,7 +24,7 @@ const AlgorithmTrading = () => {
 
     const [symbol, setSymbol] = useState<string>('');
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<ChartDataItem[]>([]);
 
     const [tradeAmountData, setTradeAmountData] = useState<{
         initAmount: number;
@@ -27,7 +37,7 @@ const AlgorithmTrading = () => {
 
     //update status popup
     const openPopup = (symbol: string) => {
-        console.log("TEST",symbol)
+
         setSelectedSymbol(symbol);
         setIsPopupOpen(true);
     };
@@ -55,13 +65,14 @@ const AlgorithmTrading = () => {
 
 
     const handleDeleteSymbol = (symbol: string) => {
-        setFavoriteStocks((prevStocks) => prevStocks.filter((stock) => stock !== symbol));
+        setFavoriteStocks((prevStocks) => prevStocks.filter((stock) => stock.symbol !== symbol));
+
     };
 
 
     const handleSymbolSelect = async (selectedSymbol: string) => {
         const selectedStock = favoriteStocks.find((stock) => stock.symbol === selectedSymbol);
-        if (!selectedStock.alStatus ){
+        if (selectedStock && !selectedStock.alStatus) {
             console.log("status : ",selectedStock.alStatus)
             openPopup(selectedStock.symbol)
         }else {
@@ -74,8 +85,9 @@ const AlgorithmTrading = () => {
                 const formattedData = [
                     {
                         name: selectedSymbol,
-                        data: response.data.map((entry: any) => ({
-                            x: entry.tradeDate,
+                        data: response.data.map((entry: TradeResult) => ({
+                            // x: entry.tradeDate,
+                            x: new Date(entry.tradeDate).getTime(),
                             y: entry.profitLoss !== null ? entry.profitLoss : 0, // null 값을 0으로 처리
                         })),
                     },
@@ -89,15 +101,16 @@ const AlgorithmTrading = () => {
                 );
                 setTradeAmountData(amountResponse.data);
             } catch (error) {
-                if (error.response) {
-                    const statusCode = error.response.status;
-                    if (statusCode === 417)
-                        alert("알고리즘 매매 등록 에러")
+                const axiosError = error as AxiosError; // AxiosError로 단언
+                if (axiosError.response) {
+                    const statusCode = axiosError.response.status;
+                    if (statusCode === 417) {
+                        alert("알고리즘 매매 등록 에러");
+                    }
                 } else {
                     console.error("Error loading chart data:", error);
                     alert("차트 데이터를 가져오는 데 실패했습니다.");
                 }
-
             } finally {
                 setIsLoading(false);
             }

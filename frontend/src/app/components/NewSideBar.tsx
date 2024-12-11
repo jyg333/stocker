@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axiosInstance from "../utils/axiosInstance";
 import { FaCheck } from 'react-icons/fa';
+import axios from "axios";
 
 const Sidebar = ({
                      items,
@@ -35,22 +36,26 @@ const Sidebar = ({
                 setSelectedSymbol(null); // 선택 초기화
             }
         } catch (error) {
-            if (error.response) {
-                // HTTP 응답이 있는 경우 상태 코드 확인
-                const status = error.response.status;
-                if (status === 400) {
-                    alert("잘못된 요청입니다. 다시 시도하세요.");
-                } else if (status === 404) {
-                    alert("Symbol을 찾을 수 없습니다.");
-                } else if (status === 401) {
-                    alert("권한이 없습니다. 로그인 후 다시 시도하세요.");
+            if (axios.isAxiosError(error)) {
+                // AxiosError로 확인된 경우 처리
+                if (error.response) {
+                    const status = error.response.status;
+                    if (status === 400) {
+                        alert("잘못된 요청입니다. 다시 시도하세요.");
+                    } else if (status === 404) {
+                        alert("Symbol을 찾을 수 없습니다.");
+                    } else if (status === 401) {
+                        alert("권한이 없습니다. 로그인 후 다시 시도하세요.");
+                    } else {
+                        alert("알 수 없는 에러가 발생했습니다.");
+                    }
                 } else {
-                    alert("알 수 없는 에러가 발생했습니다.");
+                    alert("서버와의 통신 중 문제가 발생했습니다. 다시 시도하세요.");
                 }
             } else {
-                // 네트워크 에러 등
-                console.error("Network or server error:", error.message);
-                alert("네트워크 오류가 발생했습니다. 다시 시도하세요.");
+                // AxiosError가 아닌 경우 처리
+                console.error("Unknown error:", error);
+                alert("예기치 못한 오류가 발생했습니다. 다시 시도하세요.");
             }
         }
     };

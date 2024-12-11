@@ -40,3 +40,4 @@ yarn-error.log*
 next-env.d.ts
 /src/app/test/
 /src/app/features/counterSlice.ts
+/src/app/algorithm-trading/UpdateStatusPopup_Ex.tsx

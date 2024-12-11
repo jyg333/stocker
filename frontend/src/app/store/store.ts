@@ -43,6 +43,7 @@ export const persistor = persistStore(store);
 
 // RootState와 AppDispatch 타입 정의
 export type RootState = ReturnType<typeof store.getState>;
+// export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = typeof store.dispatch;
 
 export default store;

@@ -5,7 +5,18 @@ import axiosInstance from "../utils/axiosInstance";
 import SavePopup from "./SavePopup";
 import Chart from "react-apexcharts";
 import Comment from "./Comment";
+import {ApexOptions} from "apexcharts";
 
+interface StockData {
+    symbol: string;
+    prices: { date: string; price: number }[];
+}
+
+
+interface ChartData {
+    name: string;
+    data: { x: string | number; y: number }[];
+}
 const MyPortfolio = () => {
 
     // Axios를 사용해서 getData
@@ -13,12 +24,8 @@ const MyPortfolio = () => {
     const [symbol, setSymbol] = useState<string>('');
     const [isPopupOpen, setIsPopupOpen] = useState(false); // 팝업 열림 상태 관리
     const [isLoading, setIsLoading] = useState(false); // 로딩 상태
-    const [chartData, setChartData] = useState<any[]>([]);
+    const [chartData, setChartData] = useState<ChartData[]>([]);
 
-    // 댓글 관련 상태
-    const [comments, setComments] = useState<{ datetime: string; content: string; reference: string }[]>([]);
-    const [newComment, setNewComment] = useState<string>("");
-    const [newReference, setNewReference] = useState<string>("");
 
     useEffect(() => {
         const fetchFavoriteStocks = async () => {
@@ -99,7 +106,7 @@ const MyPortfolio = () => {
             const response = await axiosInstance.get(`/api/portfolio/chart-data/${selectedSymbol}`);
 
             // 데이터를 ApexCharts 형식으로 변환
-            const formattedData = response.data.map((stock) => ({
+            const formattedData = response.data.map((stock :StockData) => ({
                 name: stock.symbol,
                 data: stock.prices.map((price) => ({ x: price.date, y: price.price })),
             }));
@@ -116,32 +123,18 @@ const MyPortfolio = () => {
     const handleDeleteSymbol = (symbol: string) => {
         setFavoriteStocks((prevStocks) => prevStocks.filter((stock) => stock !== symbol));
     };
-    // 댓글 추가 처리
-    const handleAddComment = () => {
-        if (!newComment.trim()) {
-            alert("댓글 내용을 입력하세요.");
-            return;
-        }
 
-        const currentDatetime = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
-        setComments((prevComments) => [
-            ...prevComments,
-            { datetime: currentDatetime, content: newComment, reference: newReference },
-        ]);
-        setNewComment(""); // 입력 초기화
-        setNewReference("");
-    };
 
     // 차트 옵션 설정
-    const chartOptions = {
+    const chartOptions :ApexOptions= {
         chart: {
             id: "portfolio-chart",
             zoom: { enabled: true },
         },
-        xaxis: { type: "category", title: { text: "Days" } },
+        xaxis: { type: "category", title: { text: "Years" } },
         yaxis: { title: { text: "Price" } },
         tooltip: { shared: true, intersect: false },
-        stroke: { curve: "smooth" },
+        stroke: { curve: "smooth" }, // 변경된 부분
     };
 
     return (

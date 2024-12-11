@@ -6,6 +6,11 @@ interface Comment {
     content: string;
     reference: string;
 }
+interface Content {
+    updatedAt: string;
+    comment: string;
+    ref: string;
+}
 
 const Comment = ({ symbol }: { symbol: string }) => {
     const [comments, setComments] = useState<Comment[]>([]);
@@ -25,7 +30,7 @@ const Comment = ({ symbol }: { symbol: string }) => {
                 params: { symbol, page, size: 5 }, // 페이지와 크기를 쿼리로 전달
             });
             const { content, totalPages: total } = response.data;
-            const mappedComments = content.map((item: any) => ({
+            const mappedComments = content.map((item: Content) => ({
                 updatedAt: item.updatedAt.replace("T"," "), // 서버의 updatedAt을 datetime으로 매핑
                 content: item.comment,
                 reference: item.ref,
@@ -55,10 +60,10 @@ const Comment = ({ symbol }: { symbol: string }) => {
         }
 
         const currentDatetime = new Date().toISOString(); // 현재 시간
-        const newEntry = {
+        const newEntry: Comment = {
             updatedAt: currentDatetime,
-            content: newComment,
-            reference: newReference || null,
+            content: newComment, // `content` -> `comment`로 변경
+            reference: newReference || "", // `reference` -> `ref`로 변경
         };
 
         try {
@@ -96,7 +101,7 @@ const Comment = ({ symbol }: { symbol: string }) => {
             const { updatedAt } = selectedComment;
             await axiosInstance.put(`/api/comments`, {
                 symbol,
-                updatedAt: updatedAt.replace(" ","T"),
+                updatedAt: updatedAt.replace("T",""),
                 newComment: editComment,
                 newReference: editReference || null,
             });
@@ -159,7 +164,7 @@ const Comment = ({ symbol }: { symbol: string }) => {
                             }`}
                         >
                             <td className="border border-gray-300 px-4 py-2">
-                                {comment.updatedAt}
+                                {comment.updatedAt.split(".")[0].replace("T", " ")}
                             </td>
                             <td className="border border-gray-300 px-4 py-2">
                                 {comment.content}

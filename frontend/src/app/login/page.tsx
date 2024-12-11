@@ -16,6 +16,7 @@ type LoginFormType = {
 type LoginResponse = {
     accessToken: string;
     refreshToken: string;
+    auth_level: string;
 }
 
 const LoginPage: React.FC = () => {
@@ -54,28 +55,34 @@ const LoginPage: React.FC = () => {
 
             // 서버에서 토큰을 받았다면 Redux 상태에 저장
             if (status_code ===200 &&data.accessToken && data.refreshToken) {
-                dispatch(setTokens({ accessToken: data.accessToken}));
+                dispatch(setTokens({ accessToken: data.accessToken, auth_level: data.auth_level}));
                 dispatch(setMember(loginForm.id))
                 // console.log("Redux State after login:", store.getState());
 
                 setCookie('refresh_token', data.refreshToken); // Refresh Token도 저장
-                // console.log('Tokens saved in Redux and Cookies (via cookies-next)');
 
-                // console.log("Saved Cookies:", document.cookie);
-
-
-                // router.push("/my-portfolio")
                 // 쿠키 저장 후 리다이렉트
                 setTimeout(() => {
                     router.push('/my-portfolio');
                 }, 100); // 쿠키 저장이 반영될 때까지 대기
-            } else {
+            }
+            else {
                 alert('Invalid login credentials');
             }
 
-        } catch (error) {
-            console.error(error);
-            return null;
+        }  catch (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response && error.response.status === 423) {
+                    const errorMessage = error.response.data?.message || "계정이 잠겨있습니다.";
+                    alert(errorMessage);
+                } else {
+                    console.error("Login error:", error);
+                    alert("로그인 요청 중 문제가 발생했습니다.");
+                }
+            } else {
+                console.error("Unexpected error:", error);
+                alert("예기치 못한 오류가 발생했습니다. 다시 시도하세요.");
+            }
         }
     };
 
@@ -109,7 +116,7 @@ const LoginPage: React.FC = () => {
                         <form onSubmit={handleFormSubmit}>
                             <div className="mb-4">
                                 <label htmlFor="id" className="block text-gray-700 font-medium mb-2">
-                                    Email
+                                    ID
                                 </label>
                                 <input
                                     type="email"
@@ -117,12 +124,12 @@ const LoginPage: React.FC = () => {
                                     value={loginForm.id}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Enter your email"
+                                    placeholder="ID"
                                 />
                             </div>
                             <div className="mb-4">
                                 <label htmlFor="password" className="block text-gray-700 font-medium mb-2">
-                                    Password
+                                    비밀번호
                                 </label>
                                 <input
                                     type="password"
@@ -130,7 +137,7 @@ const LoginPage: React.FC = () => {
                                     value={loginForm.password}
                                     onChange={handleInputChange}
                                     className="w-full px-4 py-2 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Enter your password"
+                                    placeholder="비밀번호 입력"
                                 />
                             </div>
                             <div className="flex items-center justify-between mb-6">
@@ -144,7 +151,12 @@ const LoginPage: React.FC = () => {
                             </div>
                         </form>
                         <p className="text-gray-600 text-center">
-                            Do not have an account? <a href="#" className="text-blue-600 hover:underline">Sign up</a>
+                            계정이 없으십니까?  {'   '}
+                            <button
+                                onClick={() => router.push('/sign-up')} // 회원가입 페이지로 이동
+                                className="text-blue-600 hover:underline"
+                            >회원가입
+                            </button>
                         </p>
                     </div>
                 </div>

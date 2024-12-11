@@ -198,20 +198,20 @@ public class MemberService {
 
 
             beforeLog.setFailCount(updateDetailDto.getFailCount());
-            beforeLog.setUpdatedBy(updateDetailDto.getUpdateUser());
+            beforeLog.setUpdatedBy(id);
             beforeLog.setUpdatedDt(LocalDateTime.now());
             memberRepository.save(beforeMember);
 
             //roles update
-            List<String> roles = memberRoleRepository.findRoleNameByIdx(idx);
-            logger.info("Target ID : {} || Roles info before : {}, After : {}", id, roles, updateDetailDto.getRoles());
+//            List<String> roles = memberRoleRepository.findRoleNameByIdx(idx);
+//            logger.info("Target ID : {} || Roles info before : {}, After : {}", id, roles, updateDetailDto.getRoles());
 
-            Set<String> rolesSet = new HashSet<>(roles);
-            Set<String> updatedRolesSet = new HashSet<>(updateDetailDto.getRoles());
-            if(!rolesSet.equals(updatedRolesSet)){
-                List<Integer> rolesIds = roleInfoRepository.findRoleIdsByRoleNames(updateDetailDto.getRoles());
-                updateRoles(rolesIds, idx);
-            }
+//            Set<String> rolesSet = new HashSet<>(roles);
+//            Set<String> updatedRolesSet = new HashSet<>(updateDetailDto.getRoles());
+//            if(!rolesSet.equals(updatedRolesSet)){
+//                List<Integer> rolesIds = roleInfoRepository.findRoleIdsByRoleNames(updateDetailDto.getRoles());
+//                updateRoles(rolesIds, idx);
+//            }
 
             inspection.setContent(String.format("사용자 정보 변경 || 관리자 ID : %s ||  대상 ID : %s || Activation : %s || Fail-Count : %s ",payload.get("userId"),updateDetailDto.getId(), updateDetailDto.isActivation(), updateDetailDto.getFailCount()));
             inspectionRepository.save(inspection);
@@ -392,7 +392,42 @@ public class MemberService {
 
     return memberList;
     }
-    // Get Member Count
+    //find Member version2
+    public List<MemberTotalDto> findMembersV2(String token) {
+        //Spring Security Filter에서 권환 확인 완료
+        Claims payload = jwtProvider.parseClaims(token);
+        Object rolesObject = payload.get("roles");
+
+        // ADMIN 권한 확인
+        if (!checker.checkRoleLevelTwo(rolesObject)) {
+            throw new ForbiddenException("You do not have permission to access this resource.");
+        }
+        List<Object[]> results = memberRepository.findMemberList();
+        List<MemberTotalDto> memberList = new ArrayList<>();
+
+        for (Object[] row : results) {
+
+            MemberTotalDto memberDetailSOC = MemberTotalDto.builder()
+                    .id(row[0] != null ? (String) row[0] : null)
+                    .name(row[1] != null ? (String) row[1] : null)
+                    .activation(row[2] != null ? (Boolean) row[2] : null)
+                    .fail_count(row[3] != null ? (Integer) row[3] : 0) // 기본값으로 0 설정
+                    .fail_dt(convertToLocalDateTime(row[4]))
+                    .join_dt(convertToLocalDateTime(row[5]))
+                    .join_ip(row[6] != null ? (String) row[6] : null)
+                    .create_dt(convertToLocalDateTime(row[7]))
+                    .created_by(row[8] != null ? (String) row[8] : null)
+                    .updated_dt(convertToLocalDateTime(row[9]))
+                    .updated_by(row[10] != null ? (String) row[10] : null)
+                    .roles(row[11] != null ? Arrays.asList(((String) row[11]).split(", ")) : null)
+                    .build();
+            memberList.add(memberDetailSOC);
+        }
+        return memberList;
+    }
+
+
+        // Get Member Count
     public Long getCount(){
         Long count = memberRepository.count();
         return count;
@@ -410,4 +445,5 @@ public class MemberService {
         roleSaver.saveRole(roleInfoRepository, memberRoleRepository, newRoles, idx);
 
     }
+
 }

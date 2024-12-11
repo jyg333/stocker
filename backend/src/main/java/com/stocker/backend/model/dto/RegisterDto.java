@@ -4,5 +4,5 @@ import lombok.Data;
 
 @Data
 public class RegisterDto {
-    private String tempPassword;
+    private String message;
 }

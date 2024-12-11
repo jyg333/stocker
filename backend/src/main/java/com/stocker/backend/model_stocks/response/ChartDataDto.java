@@ -13,6 +13,6 @@ import java.time.LocalDate;
 public class ChartDataDto {
     private Float eps;
     private Float per;
-    private Float netIncomeRatio;
+    private Float roe;
     private LocalDate accountDate;
 }

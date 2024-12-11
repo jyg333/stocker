@@ -25,8 +25,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Array;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -137,42 +139,37 @@ public class AuthService {
 
 
     @Transactional
-    public String registerMember(MemberRegisterDto registerDto ,HttpServletRequest request) {
+    public boolean registerMember(MemberRegisterDto registerDto ,HttpServletRequest request) {
 
-//        String clientIP = request.getHeader("X-Forwarded-For");
-        String clientIP = request.getHeader("Host");
+        String clientIP = request.getHeader("X-Forwarded-For");
+
+        //activate false setting
         LocalDateTime now = LocalDateTime.now();
 
         Inspection inspection = new Inspection();
         inspection.setSavedAt(now);
 
+        //Check Password valid
+        logger.info(registerDto.getPassword()," : ", registerDto.getValidPassword());
+        if (!registerDto.getPassword().equals(registerDto.getValidPassword())){
+            throw new BadRequestException("Valid Password is not same");
+        }
 
         //중복된 ID 가 존재하지 않는 경우 실행
         if (memberRepository.findById(registerDto.getId()) == null){
-            boolean useLetters = true;
-            boolean useNumbers = true;
-            String randomStr = RandomStringUtils.random(10, useLetters, useNumbers);
+//            boolean useLetters = true;
+//            boolean useNumbers = true;
+//            String randomStr = RandomStringUtils.random(10, useLetters, useNumbers);
 
             // Todo : JWT 관리자 권한 확인
-            String encodedPassword = passwordEncoder.encode(randomStr);
+            String encodedPassword = passwordEncoder.encode(registerDto.getPassword());
 //            logger.info("temp password : {}", randomStr);
-
-            String position = null;
-
-            if(registerDto.getRoles().contains("ROLE_ADMIN")){
-                position = "admin";
-            } else if (registerDto.getRoles().contains("ROLE_USER")) {
-                position = "user";
-            } else if (registerDto.getRoles().contains("ROLE_OBSERVER")){
-                position="observer";
-            }
 
             Member member = Member.builder()
                     .id(registerDto.getId())
                     .password(encodedPassword)
-                    .activation(registerDto.isActivation())
+                    .activation(false)
                     .name(registerDto.getName())
-                    .position(position)
                     .build();
 
             //login_log table 생성
@@ -199,13 +196,16 @@ public class AuthService {
             loginLogRepository.save(loginLog);
             passwordLogRepository.save(passwordLog);
 //            logger.info("Roles : {}",registerDto.getRoles());
-            saveRoles(registerDto.getRoles(), registerDto.getId());
+            List<String> roles = new ArrayList<String>();
+            roles.add("ROLE_USER");
+
+            saveRoles(roles, registerDto.getId());
 
             inspection.setContent(String.format("회원 가입 완료  || 가입 ID : %s || IP Address : %s",registerDto.getId(),clientIP));
-
             inspectionRepository.save(inspection);
-            return randomStr;
+            return true;
         }else {
+            //422
             throw new UnprocessableEntityException("중복된 사용자가 존재합니다");
         }
     }
@@ -221,6 +221,10 @@ public class AuthService {
 
         if (loginMember ==null){
             throw new UnauthorizedException("Invalid ID/Password!");
+        }
+        if (!loginMember.getActivation()){
+            logger.info("Login request to Locked Account : {}",loginMember.getId());
+            throw new LockedException("계정이 잠겨있습니다. 관리자에서 문의하세요.");
         }
 
         Integer idx = loginMember.getIdx();

@@ -1,5 +1,6 @@
 package com.stocker.backend.model.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -16,11 +17,12 @@ public class MemberRegisterDto {
     @NotEmpty
     private String id;
     @NotEmpty
+    private String password;
+    @NotEmpty
+    private String validPassword;
+    @NotEmpty
     private String name;
-    @NotNull
-    private boolean activation; // 계정을 생성할 때 필요한가?
     @NotEmpty
-    private List<String> roles;
-    @NotEmpty
-    private String createdBy;
+    @Email // 이메일 형식 검증
+    private String email;
 }

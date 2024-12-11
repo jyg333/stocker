@@ -29,9 +29,6 @@ public class Member {
     @Column(length = 255)
     private String password;
 
-    @Size(max = 20)
-    @Column
-    private String position;
 
     @Column(name = "activation", columnDefinition = "TINYINT(1) DEFAULT 0", nullable = false)
     private Boolean activation;

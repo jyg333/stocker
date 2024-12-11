@@ -13,5 +13,6 @@ public class AmountDto {
 
     private Long initAmount;
     private Long curAmount;
+    private Long buyAmount;
 
 }

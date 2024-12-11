@@ -9,6 +9,7 @@ import com.stocker.backend.model.dto.request.UpdateDetailDto;
 import com.stocker.backend.model.dto.request.UpdatePasswordDto;
 import com.stocker.backend.model.dto.request.UpdateSimpleDto;
 import com.stocker.backend.model.dto.response.MemberAllListDto;
+import com.stocker.backend.model.entity.MemberTotalDto;
 import com.stocker.backend.service.MemberService;
 import com.stocker.backend.utils.InetAddressValidator;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,6 +44,13 @@ public class MemberController {
                                                    @RequestParam(value = "offset", defaultValue = "0") Integer offset){
         String token = authorizationHeader.replace("Bearer ", "");
         return memberService.findAllMembers(token,limit, offset);
+    }
+    // pagination
+    @GetMapping("/v2/member-list")
+    public List<MemberTotalDto> getMemberList(@RequestHeader("Authorization") String authorizationHeader
+                                              ){
+        String token = authorizationHeader.replace("Bearer ", "");
+        return memberService.findMembersV2(token);
     }
 
     @GetMapping("/member-count")
@@ -79,10 +87,10 @@ public class MemberController {
         if (errors.hasErrors()) {
             throw new UnprocessableEntityException("Request Body validation error.");
         }
-        boolean inet = inetAddressValidator.isValidInetAddress(updateDetailDto.getIpAddress());
-        if (!inet){
-            throw new BadRequestException("Invalid IP Address data type");
-        }
+//        boolean inet = inetAddressValidator.isValidInetAddress(updateDetailDto.getIpAddress());
+//        if (!inet){
+//            throw new BadRequestException("Invalid IP Address data type");
+//        }
 
         String token = authorizationHeader.replace("Bearer ", "");
         try{
@@ -119,7 +127,7 @@ public class MemberController {
     }
 
 
-    //6-2. 사용자 비밀번호 초기화, Todo : 관리자 권한 확인
+    // 사용자 비밀번호 초기화, Todo : 관리자 권한 확인
     @PutMapping("/reset-password")
     public ResponseEntity<PasswordResetResponseDto> resetPassword(@RequestHeader("Authorization") String authorizationHeader,@Valid @RequestBody PasswordResetDto passwordResetDto, Errors errors, HttpServletRequest request) {
         if (errors.hasErrors()) {
@@ -130,7 +138,7 @@ public class MemberController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    //6. 사용자 삭제, todo : 권한 검증, 대상조회, delete 명령어 확인인
+    //사용자 삭제, todo : 권한 검증, 대상조회, delete 명령어 확인인
     @DeleteMapping("/{id}")
     public void deleteMember(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String id,@Valid @RequestBody CommandDto command, Errors errors, HttpServletRequest request){
         if (errors.hasErrors()) {
@@ -138,7 +146,7 @@ public class MemberController {
         }
         String token = authorizationHeader.replace("Bearer ","");
 
-        if (command.getCommand().equals("DELETE")){
+        if (command.getCommand().equals("delete")){
             memberService.deleteService(token, id,request);
         }else {
             throw new BadRequestException("Delete command does not match");

@@ -13,6 +13,7 @@ public class TokenDTO {
     private String accessToken;
 //    private Date refreshTokenExpDate;
     private String refreshToken;
+    private String auth_level;
 
 
 }

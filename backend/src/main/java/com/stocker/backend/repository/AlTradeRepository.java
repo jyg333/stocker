@@ -16,7 +16,7 @@ public interface AlTradeRepository extends JpaRepository<AlTrade, Integer> {
 
     //무결성 관리를 위한 alId 선언에 따른 parameter 수정
     @Query("""
-           SELECT new com.stocker.backend.model_stocks.response.AmountDto(at.initAmount, at.curAmount)
+           SELECT new com.stocker.backend.model_stocks.response.AmountDto(at.initAmount, at.curAmount, at.buyAmount)
            FROM AlTrade at
            WHERE at.symbol = :symbol
            AND at.alId.alId = :alId

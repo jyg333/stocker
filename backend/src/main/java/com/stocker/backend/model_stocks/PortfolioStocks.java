@@ -36,8 +36,8 @@ public class PortfolioStocks {
     @Column(name = "volume")
     private Long volume;
 
-    @Column(name = "net_income_ratio")
-    private Float netIncomeRatio;
+    @Column(name = "roe")
+    private Float roe;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;

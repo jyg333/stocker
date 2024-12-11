@@ -2,10 +2,12 @@ package com.stocker.backend.service;
 
 import com.stocker.backend.controller.AuthController;
 import com.stocker.backend.exceptionHandling.ExpectationFailedException;
+import com.stocker.backend.exceptionHandling.NotAcceptableException;
 import com.stocker.backend.model_stocks.AlTrade;
 import com.stocker.backend.model_stocks.AlTypes;
 import com.stocker.backend.model_stocks.MemberFavorite;
 import com.stocker.backend.model_stocks.request.UpdateAlStatusDto;
+import com.stocker.backend.model_stocks.request.UpdateAlTradeDto;
 import com.stocker.backend.model_stocks.response.AmountDto;
 import com.stocker.backend.model_stocks.response.AmountResponseDto;
 import com.stocker.backend.model_stocks.response.TradeResultDto;
@@ -16,9 +18,12 @@ import com.stocker.backend.repository.MemberFavoriteRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +32,7 @@ public class AlTradeResultService {
     private final AlTradeResultRepository alTradeResultRepository;
     private final AlTradeRepository alTradeRepository;
     private final MemberFavoriteRepository memberFavoriteRepository;
+    private final AlTypesRepository alTypesRepository;
 
     private static final Logger logger = LogManager.getLogger(AlTradeResultService.class);
 
@@ -53,9 +59,16 @@ public class AlTradeResultService {
         amountResponseDto.setInitAmount(amountDto.getInitAmount());
         amountResponseDto.setCurAmount(amountDto.getCurAmount());
 
+        //nullable buyAmount
+        Long buyAmount = amountDto.getBuyAmount();
+        if (buyAmount == null){
+            buyAmount =0L;
+        }
+
+
         // ratio 계산 (initAmount가 0인 경우를 처리)
         double ratio = amountDto.getInitAmount() > 0
-                ? ((double) amountDto.getCurAmount() - amountDto.getInitAmount()) / amountDto.getInitAmount() * 100
+                ? ((double) amountDto.getCurAmount()+ - buyAmount) / amountDto.getInitAmount() * 100
                 : 0.0;
         amountResponseDto.setRatio(ratio);
 
@@ -76,7 +89,44 @@ public class AlTradeResultService {
         memberFavoriteRepository.save(memberFavorite);
 
         return true;
+    }
 
+    public boolean registerAlTrade(String id, UpdateAlTradeDto updateAlTradeDto){
+        try {
+            AlTrade alTrade = new AlTrade();
+            AlTypes altype = alTypesRepository.findByAlType(updateAlTradeDto.getAlType());
 
+            LocalDateTime endAt = LocalDateTime.parse(updateAlTradeDto.getEndAt());
+
+            alTrade.setSymbol(updateAlTradeDto.getSymbol());
+            alTrade.setId(id);
+            alTrade.setAlId(altype);
+            alTrade.setInitAmount(updateAlTradeDto.getInitAmount());
+            alTrade.setEndAt(endAt);
+            alTrade.setUpperLimit(updateAlTradeDto.getUpperLimit());
+            alTrade.setLowerLimit(updateAlTradeDto.getLowerLimit());
+            alTrade.setStartAt(LocalDateTime.now());
+            alTrade.setActivation(true);
+            alTrade.setUpdatedAt(LocalDateTime.now());
+//        alTrade.setAlId();
+            MemberFavorite memberFavorite = memberFavoriteRepository.findByIdAndSymbol(id, updateAlTradeDto.getSymbol());
+            memberFavorite.setAlStatus(true);
+            memberFavoriteRepository.save(memberFavorite);
+            alTradeRepository.save(alTrade);
+        }catch (Exception e){
+            logger.error("Save al_trade Exception  : {}",e);
+            throw new NotAcceptableException("Fail register Al Trade");
+        }
+
+        return true;
+    }
+
+    public List<String> getAllTypes(){
+        List<AlTypes> alTypesList = alTypesRepository.findAll();
+
+        // Stream API를 사용하여 al_type 값만 추출하여 List<String>으로 반환
+        return alTypesList.stream()
+                .map(AlTypes::getAlType) // AlTypes 객체의 al_type 필드 값 추출
+                .collect(Collectors.toList()); // List<String>으로 변환
     }
 }

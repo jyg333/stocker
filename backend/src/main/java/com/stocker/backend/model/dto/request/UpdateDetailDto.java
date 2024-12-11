@@ -13,16 +13,15 @@ public class UpdateDetailDto {
 
     @NotEmpty
     private String id;
+
+    @NotEmpty
+    private String name;
     @NotNull
     private boolean activation;
     @NotNull
     private Integer failCount;
-    @NotEmpty
-    private List<String> roles;
-    @NotEmpty
-    private String updateUser;
+//    @NotEmpty
+//    private List<String> roles;
 
-    private String name;
-    private String ipAddress;
 
 }

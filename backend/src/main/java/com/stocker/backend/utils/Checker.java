@@ -46,7 +46,7 @@ public class Checker {
         } else {
             roles = new ArrayList<>();
         }
-        if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_SUPER")){
+        if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_OBSERVER")){
             //todo : null 인경우 예외처리 추가하기
             return true;
         }
@@ -65,7 +65,7 @@ public class Checker {
         } else {
             roles = new ArrayList<>();
         }
-            if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER") || roles.contains("ROLE_SUPER")){
+            if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER") || roles.contains("ROLE_OBSERVER")){
             return true;
         }
             else{
@@ -81,7 +81,7 @@ public class Checker {
         } else {
             roles = new ArrayList<>();
         }
-        if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER")  || roles.contains("ROLE_SUPER")){
+        if (roles.contains("ROLE_ADMIN") || roles.contains("ROLE_USER")  || roles.contains("ROLE_OBSERVER")){
             return true;
         }
         else{
@@ -97,9 +97,7 @@ public class Checker {
             throw new UnprocessableEntityException("ID cannot be null or empty");
         }
 
-//        if (updateSimpleDto.getUpdateUser() == null || updateSimpleDto.getUpdateUser().isEmpty()) {
-//            throw new UnprocessableEntityException("UpdateUser cannot be null or empty");
-//        }
+
     }
 
 
@@ -120,22 +118,21 @@ public class Checker {
             throw new UnprocessableEntityException("FailCount cannot be negative");
         }
 
-        // OTP Check 검증: boolean 타입이므로 별도의 검증 필요 없음
 
         // Roles 검증
-        if (updateDetailDto.getRoles() == null || updateDetailDto.getRoles().isEmpty()) {
-            throw new UnprocessableEntityException("Roles cannot be null or empty");
-        }
-        for (String role : updateDetailDto.getRoles()) {
-            if (role == null || role.isEmpty()) {
-                throw new UnprocessableEntityException("Each role in the roles list must be non-null and non-empty");
-            }
-        }
+//        if (updateDetailDto.getRoles() == null || updateDetailDto.getRoles().isEmpty()) {
+//            throw new UnprocessableEntityException("Roles cannot be null or empty");
+//        }
+//        for (String role : updateDetailDto.getRoles()) {
+//            if (role == null || role.isEmpty()) {
+//                throw new UnprocessableEntityException("Each role in the roles list must be non-null and non-empty");
+//            }
+//        }
 
         // UpdateUser 검증
-        if (updateDetailDto.getUpdateUser() == null || updateDetailDto.getUpdateUser().isEmpty()) {
-            throw new UnprocessableEntityException("UpdateUser cannot be null or empty");
-        }
+//        if (updateDetailDto.getUpdateUser() == null || updateDetailDto.getUpdateUser().isEmpty()) {
+//            throw new UnprocessableEntityException("UpdateUser cannot be null or empty");
+//        }
     }
 
 

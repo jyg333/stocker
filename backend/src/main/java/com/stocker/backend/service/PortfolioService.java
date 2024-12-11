@@ -74,7 +74,8 @@ public class PortfolioService {
 
     public ResponseEntity<SearchResultDto> searchSymbol(String symbol) throws IOException {
 
-        URL url = new URL(String.format(fmpEndpoint+"/v3/income-statement/%s?period=%s&limit=100&apikey=%s",symbol,period,apiKey));
+//        URL url = new URL(String.format(fmpEndpoint+"/v3/income-statement/%s?period=%s&limit=100&apikey=%s",symbol,period,apiKey));
+        URL url = new URL(String.format(fmpEndpoint+"/v3/key-metrics/%s?apikey=%s",symbol,apiKey));
 
         //해당 주식 DB 조회 -> FMP의 요금제에 따라서 변경
         PortfolioStocks dbData = portfolioRepository.findFirstBySymbolOrderByAccountDateDesc(symbol);
@@ -118,8 +119,9 @@ public class PortfolioService {
                         PortfolioStocks portfolioStocks =  PortfolioStocks.builder()
                                 .accountDate(LocalDate.parse( entry.get("date").toString()))
                                 .symbol(entry.get("symbol").toString())
-                                .eps(parseFloat(entry.get("eps")))
-                                .netIncomeRatio(parseFloat(entry.get("netIncomeRatio")))
+                                .eps(parseFloat(entry.get("netIncomePerShare")))
+                                .per(parseFloat(entry.get("peRatio")))
+                                .roe(parseFloat(entry.get("roe")))
                                 .updatedAt(LocalDateTime.now())
                                 .build();
                         dataList.add(portfolioStocks);
@@ -188,7 +190,7 @@ public class PortfolioService {
 
     public List<ChartDataResponse> transformData(List<ChartDataDto> rawData) {
         // 변환할 카테고리 정의
-        String[] categories = {"EPS", "PER", "Net Income Ratio"};
+        String[] categories = {"EPS", "PER", "ROE"};
 
         List<ChartDataResponse> chartDataList = new ArrayList<>();
 
@@ -205,8 +207,8 @@ public class PortfolioService {
                     case "PER":
                         value = dto.getPer();
                         break;
-                    case "Net Income Ratio":
-                        value = dto.getNetIncomeRatio();
+                    case "ROE":
+                        value = dto.getRoe();
                         break;
                 }
 

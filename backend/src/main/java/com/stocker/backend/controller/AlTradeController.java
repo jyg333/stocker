@@ -2,10 +2,13 @@ package com.stocker.backend.controller;
 
 import com.stocker.backend.exceptionHandling.ForbiddenException;
 import com.stocker.backend.exceptionHandling.NotAcceptableException;
+import com.stocker.backend.model_stocks.AlTypes;
 import com.stocker.backend.model_stocks.request.UpdateAlStatusDto;
+import com.stocker.backend.model_stocks.request.UpdateAlTradeDto;
 import com.stocker.backend.model_stocks.response.AmountDto;
 import com.stocker.backend.model_stocks.response.AmountResponseDto;
 import com.stocker.backend.model_stocks.response.TradeResultDto;
+import com.stocker.backend.repository.AlTypesRepository;
 import com.stocker.backend.service.AlTradeResultService;
 import com.stocker.backend.utils.JwtProvider;
 import jakarta.validation.Valid;
@@ -26,6 +29,9 @@ public class AlTradeController {
 
 
     private final AlTradeResultService alTradeResultService;
+    private final AlTypesRepository alTypesRepository;
+
+
     private final JwtProvider jwtProvider;
     private static final Logger logger = LogManager.getLogger(AlTradeController.class);
 
@@ -75,4 +81,39 @@ public class AlTradeController {
 
         }
     }
+    //자동거래 등록
+    @PostMapping("/update-settings")
+    public ResponseEntity<String> updateAlTradeSettings(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @Valid @RequestBody UpdateAlTradeDto updateSettingsDto) {
+
+        // JWT 토큰에서 사용자 ID 추출
+        String token = authorizationHeader.replace("Bearer ", "");
+        if (!jwtProvider.validateToken(token)) {
+            logger.error("Invalid JWT token");
+            throw new ForbiddenException("Unauthorized access");
+        }
+
+        String userId = (String) jwtProvider.parseClaims(token).get("userId");
+
+        // 요청 데이터 처리
+        boolean isUpdated = alTradeResultService.registerAlTrade(userId, updateSettingsDto);
+
+        if (isUpdated) {
+            logger.info("Al trade register is Successful. ID : {}" ,userId);
+            return ResponseEntity.ok("Settings updated successfully");
+        } else {
+            logger.error("Failed to update settings for userId: {}, symbol: {}", userId, updateSettingsDto.getSymbol());
+            throw new NotAcceptableException("Failed to update settings");
+        }
+    }
+
+    @GetMapping("/al-types")
+    public List<String> getAltypes(@RequestHeader("Authorization") String authorizationHeader){
+
+        List<String> response = alTradeResultService.getAllTypes();
+
+        return response;
+
+    };
 }

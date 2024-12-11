@@ -29,8 +29,11 @@ public class AlTrade {
     @Column(name = "init_amount", nullable = false)
     private Long initAmount;
 
-    @Column(name = "cur_amount", nullable = false)
+    @Column(name = "cur_amount", nullable = true)
     private Long curAmount;
+
+    @Column(name = "buy_amount", nullable = false)
+    private Long buyAmount;
 
     @Column(name = "lower_limit")
     private Long lowerLimit;

@@ -26,12 +26,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             "ORDER BY m.id", nativeQuery = true)
     List<Object[]> findMemberListDto(@Param("roleName") String roleName);
 
-    @Query("SELECT new com.stocker.backend.model.dto.MemberDto(m.idx, m.id, m.position, m.activation, m.name) FROM Member m")
-    List<MemberDto> findMemberDto();
 
-    // 사용자 본인 정보조회
-    @Query("SELECT new com.stocker.backend.model.dto.MemberDto(m.idx, m.id, m.position,  m.activation, m.name) FROM Member m WHERE m.id=:id")
-    MemberDto findByIdDto(@Param("id") String id);
 
     @Query("SELECT m.idx FROM Member m WHERE m.id = :id")
     Integer findIdxById(@Param("id") String id);
@@ -59,18 +54,29 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     void updateActivation(@Param("id")String id);
 
 
-    @Query(value = "SELECT m.id, m.position, m.activation, " +
+    @Query(value = "SELECT m.id, m.activation, " +
         "ll.fail_count, " +
         "GROUP_CONCAT(DISTINCT ri.roles_name ORDER BY ri.roles_name SEPARATOR ', ') AS roles, " +
         "FROM member m " +
         "JOIN login_log ll ON m.id = ll.id " +
-        "JOIN tdb.member_roles mr ON m.idx = mr.idx " +
+        "JOIN member_roles mr ON m.idx = mr.idx " +
         "JOIN roles_info ri ON ri.roles_id = mr.roles_id " +
         "GROUP BY m.id, m.idx order by m.idx LIMIT :limit OFFSET :offset",
         nativeQuery = true)
     List<Object[]> findMemberListDto(@Param("limit")Integer limit, @Param("offset") Integer offset);
 
 
-
+    //find all member version2
+    @Query(value = "SELECT m.id, m.name, m.activation, " +
+            "ll.fail_count, ll.fail_dt, ll.join_dt, ll.join_ip, ll.create_dt, ll.created_by, ll.updated_dt, ll.updated_by, " +
+            "GROUP_CONCAT(DISTINCT ri.roles_name ORDER BY ri.roles_name SEPARATOR ', ') AS roles " +
+            "FROM member m " +
+            "JOIN login_log ll ON m.id = ll.id " +
+            "JOIN member_roles mr ON m.idx = mr.idx " +
+            "JOIN roles_info ri ON ri.roles_id = mr.roles_id " +
+            "GROUP BY m.id, m.name, m.activation, " +
+            "ll.fail_count, ll.fail_dt, ll.join_dt, ll.join_ip, ll.create_dt, ll.created_by, ll.updated_dt, ll.updated_by",
+            nativeQuery = true)
+    List<Object[]> findMemberList();
 
 }

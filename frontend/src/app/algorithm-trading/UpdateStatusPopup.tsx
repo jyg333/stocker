@@ -36,7 +36,7 @@ const UpdateStatusPopup: React.FC<UpdateStatusPopupProps> = ({ symbol, onConfirm
 // 유효성 검사 메서드
     const validateForm = (): boolean => {
         const { initAmount, upperLimit, lowerLimit, endAt,alType } = formData;
-
+        console.log(initAmount, upperLimit, lowerLimit, endAt, alType)
         // 숫자형 값 검사
         if (isNaN(initAmount) || initAmount <= 0) {
             alert("초기 금액은 숫자여야 하며 0보다 커야 합니다.");
@@ -50,7 +50,14 @@ const UpdateStatusPopup: React.FC<UpdateStatusPopupProps> = ({ symbol, onConfirm
             alert("하한선은 숫자여야 하며 0 이상이어야 합니다.");
             return false;
         }
-
+        // 오늘 이후의 날짜인지 확인
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // 시간을 0으로 설정하여 날짜만 비교
+        const endDate = new Date(endAt);
+        if (endDate <= today) {
+            alert("종료 시간은 오늘 이후여야 합니다.");
+            return false;
+        }
         // 종료 시간 검사
         if (endAt && isNaN(new Date(endAt).getTime())) {
             alert("유효한 종료 시간을 입력하세요.");
@@ -58,7 +65,7 @@ const UpdateStatusPopup: React.FC<UpdateStatusPopupProps> = ({ symbol, onConfirm
         }
 
         // 추가 논리 검사: 하한선이 상한선보다 크지 않은지 확인
-        if (lowerLimit > upperLimit) {
+        if (Number(lowerLimit) > Number(upperLimit)) {
             alert("하한선은 상한선보다 클 수 없습니다.");
             return false;
         }

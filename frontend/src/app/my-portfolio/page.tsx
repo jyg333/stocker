@@ -132,7 +132,7 @@ const MyPortfolio = () => {
             zoom: { enabled: true },
         },
         xaxis: { type: "category", title: { text: "Years" } },
-        yaxis: { title: { text: "Price" } },
+        yaxis: { title: { text: "Ratio" } },
         tooltip: { shared: true, intersect: false },
         stroke: { curve: "smooth" }, // 변경된 부분
     };

@@ -40,6 +40,7 @@ const UserManagementPage: React.FC = () => {
 
         fetchData();
     }, []);
+    console.log("user : ",users)
 
     const updateUser = async (id: string, updatedData: Partial<User>) => {
         try {
@@ -89,6 +90,7 @@ const UserManagementPage: React.FC = () => {
 
     const handleSaveEdit = async () => {
         if (editUserId) {
+            console.log("editedData : ",editedData)
             await updateUser(editUserId, editedData);
             setEditUserId(null);
         }
@@ -106,6 +108,7 @@ const UserManagementPage: React.FC = () => {
                 role
                     .replace("ROLE_ADMIN", "관리자")
                     .replace("ROLE_USER", "사용자")
+                    .replace("ROLE_OBSERVER", "관찰자")
             )
             .join(", "); // 배열을 쉼표로 구분된 문자열로 변환
     };

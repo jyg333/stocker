@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axiosInstance from "../utils/axiosInstance";
 import { FaCheck } from 'react-icons/fa';
 import axios from "axios";
+// import {symbol} from "prop-types";
 
 const Sidebar = ({
                      items,
@@ -28,22 +29,26 @@ const Sidebar = ({
 
         try {
             // DELETE 요청 전송
-            const response = await axiosInstance.delete(`/api/portfolio/delete/${selectedSymbol}`);
-            console.log(response)
-            if (response.status === 202) {
+            console.log("symbol : ",selectedSymbol)
+            const response = await axiosInstance.post(`/api/al-trade/delete/trading`,{
+                symbol : selectedSymbol
+            });
+            // console.log(response)
+            if (response.status ===     202) {
                 alert("해당 종목이 성공적으로 삭제돼었습니다");
                 onDelete(selectedSymbol); // 삭제된 Symbol로 상태 업데이트
                 setSelectedSymbol(null); // 선택 초기화
             }
         } catch (error) {
+
             if (axios.isAxiosError(error)) {
                 // AxiosError로 확인된 경우 처리
                 if (error.response) {
                     const status = error.response.status;
                     if (status === 400) {
                         alert("잘못된 요청입니다. 다시 시도하세요.");
-                    } else if (status === 404) {
-                        alert("Symbol을 찾을 수 없습니다.");
+                    } else if (status === 406) {
+                        alert("해당 Symbol 삭제 실패");
                     } else if (status === 401) {
                         alert("권한이 없습니다. 로그인 후 다시 시도하세요.");
                     } else {

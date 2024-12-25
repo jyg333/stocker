@@ -26,7 +26,7 @@ const Sidebar = ({
 
         try {
             // DELETE 요청 전송
-            const response = await axiosInstance.delete(`/api/portfolio/delete/${selectedSymbol}`);
+            const response = await axiosInstance.post(`/api/al-trade/delete/trading`);
             console.log(response)
             if (response.status === 202) {
                 alert("해당 종목이 성공적으로 삭제돼었습니다");

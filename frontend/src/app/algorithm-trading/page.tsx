@@ -73,7 +73,6 @@ const AlgorithmTrading = () => {
     const handleSymbolSelect = async (selectedSymbol: string) => {
         const selectedStock = favoriteStocks.find((stock) => stock.symbol === selectedSymbol);
         if (selectedStock && !selectedStock.alStatus) {
-            console.log("status : ",selectedStock.alStatus)
             openPopup(selectedStock.symbol)
         }else {
 
@@ -92,6 +91,7 @@ const AlgorithmTrading = () => {
                         })),
                     },
                 ];
+                // console.log("response : ",response)
 
                 setChartData(formattedData); // 차트 데이터 업데이트
 

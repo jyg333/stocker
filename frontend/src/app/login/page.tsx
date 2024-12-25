@@ -119,7 +119,7 @@ const LoginPage: React.FC = () => {
                                     ID
                                 </label>
                                 <input
-                                    type="email"
+                                    type="id"
                                     id="id"
                                     value={loginForm.id}
                                     onChange={handleInputChange}

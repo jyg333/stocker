@@ -40,3 +40,5 @@ out/
 *.pem
 /logs/
 .env.*
+/configs/
+/keys/

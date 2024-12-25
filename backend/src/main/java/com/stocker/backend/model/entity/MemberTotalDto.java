@@ -18,7 +18,7 @@ public class MemberTotalDto {
     private String id;
     private String name;
     private Boolean activation;
-    private Integer fail_count;
+    private Integer failCount;
     private LocalDateTime fail_dt; // 가장최근 password 실패시간
     private LocalDateTime join_dt; // 가장최근 로그인 시간
     private String join_ip;

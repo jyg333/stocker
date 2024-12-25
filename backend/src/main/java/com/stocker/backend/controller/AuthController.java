@@ -59,7 +59,7 @@ public class AuthController {
         }
         //todo : otp 사용 여부 확인 추가 2024-07-25
 
-            TokenDTO jwt = authService.loginRequest(memberLoginDto,request);
+        TokenDTO jwt = authService.loginRequest(memberLoginDto,request);
 
         // JWT에서 roles 추출
         Object rolesObject = jwtProvider.parseClaims(jwt.getAccessToken()).get("roles");
@@ -70,6 +70,7 @@ public class AuthController {
 
             // roles를 문자열로 변환 (필요 시)
             String rolesString = String.join(", ", roles);
+            logger.info(rolesString);
             if(rolesString.equals("ROLE_ADMIN")){
                 jwt.setAuth_level("301");
 
@@ -80,14 +81,14 @@ public class AuthController {
             }
         }
 
-            authService.saveRefreshToken(jwt);
+        authService.saveRefreshToken(jwt);
 
-            // HTTP 헤더에 JWT 포함
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, JwtFilter.BEARER_PREFIX + jwt.getAccessToken());
+        // HTTP 헤더에 JWT 포함
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtFilter.AUTHORIZATION_HEADER, JwtFilter.BEARER_PREFIX + jwt.getAccessToken());
 
-            // JWT와 헤더를 포함한 응답 반환
-            return new ResponseEntity<>(jwt, httpHeaders, HttpStatus.OK);
+        // JWT와 헤더를 포함한 응답 반환
+        return new ResponseEntity<>(jwt, httpHeaders, HttpStatus.OK);
 
     }
 

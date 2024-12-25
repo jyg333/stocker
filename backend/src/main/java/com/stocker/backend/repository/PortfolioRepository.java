@@ -12,7 +12,7 @@ public interface PortfolioRepository extends JpaRepository<PortfolioStocks, Inte
     PortfolioStocks findFirstBySymbolOrderByAccountDateDesc(String symbol);
 
     @Query("SELECT new com.stocker.backend.model_stocks.response.ChartDataDto(p.eps, p.per, p.roe, p.accountDate) " +
-            "FROM PortfolioStocks p WHERE p.symbol = :symbol")
+            "FROM PortfolioStocks p WHERE p.symbol = :symbol ORDER BY p.accountDate ASC")
     List<ChartDataDto> findFinancialRatiosBySymbol(String symbol);
 
 

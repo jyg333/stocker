@@ -37,7 +37,7 @@ public class CustomDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("사용자가 입력한 아이디에 해당하는 사용자를 찾을 수 없습니다.");
         }
 
-        //2024-08-08 해당 유저의 권한 값을 DB에서 불러오는 기능 추가
+        //해당 유저의 권한 값을 DB에서 불러오는 기능 추가
         List<String> roles = memberRepository.findRoleNameById(member.getId());
 
         Collection<SimpleGrantedAuthority> grant = new ArrayList<>();

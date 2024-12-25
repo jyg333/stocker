@@ -17,4 +17,6 @@ public interface RoleInfoRepository extends JpaRepository<RoleInfo, Integer> {
     @Query("SELECT ri.rolesId FROM RoleInfo ri WHERE ri.rolesName IN :roleNames")
     List<Integer> findRoleIdsByRoleNames(@Param("roleNames") List<String> roleNames);
 
+    RoleInfo findByRolesId(Integer rolesId);
+
 }

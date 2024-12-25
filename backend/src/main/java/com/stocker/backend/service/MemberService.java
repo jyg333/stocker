@@ -411,7 +411,7 @@ public class MemberService {
                     .id(row[0] != null ? (String) row[0] : null)
                     .name(row[1] != null ? (String) row[1] : null)
                     .activation(row[2] != null ? (Boolean) row[2] : null)
-                    .fail_count(row[3] != null ? (Integer) row[3] : 0) // 기본값으로 0 설정
+                    .failCount(row[3] != null ? (Integer) row[3] : 0) // 기본값으로 0 설정
                     .fail_dt(convertToLocalDateTime(row[4]))
                     .join_dt(convertToLocalDateTime(row[5]))
                     .join_ip(row[6] != null ? (String) row[6] : null)

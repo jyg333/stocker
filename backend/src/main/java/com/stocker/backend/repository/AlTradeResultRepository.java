@@ -1,6 +1,7 @@
 package com.stocker.backend.repository;
 
 
+import com.stocker.backend.model_stocks.AlTrade;
 import com.stocker.backend.model_stocks.AlTradeResult;
 import com.stocker.backend.model_stocks.response.TradeResultDto;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,4 +29,7 @@ public interface AlTradeResultRepository extends JpaRepository<AlTradeResult, In
        )
        """, nativeQuery = true)
     List<TradeResultDto> findLatestTradeResultsBySymbol(@Param("symbol") String symbol);
+
+    void deleteAllByTradeIdxAndSymbol(AlTrade idx, String symbol);
+//    void deleteAllByIdxAndSymbol(Integer idx, String symbol);
 }

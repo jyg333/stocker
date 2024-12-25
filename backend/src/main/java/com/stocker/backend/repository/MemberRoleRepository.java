@@ -21,6 +21,7 @@ public interface MemberRoleRepository extends JpaRepository<MemberRole, MemberRo
     @Query("SELECT ri.rolesName FROM RoleInfo ri JOIN MemberRole mr ON mr.rolesId=ri.rolesId WHERE mr.idx=:idx")
     List<String> findRoleNameByIdx(@Param("idx") Integer idx);
 
+    MemberRole findByIdx(Integer idx);
 
 
 }

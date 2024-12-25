@@ -3,10 +3,12 @@ package com.stocker.backend.controller;
 import com.stocker.backend.exceptionHandling.ForbiddenException;
 import com.stocker.backend.exceptionHandling.NotAcceptableException;
 import com.stocker.backend.model_stocks.AlTypes;
+import com.stocker.backend.model_stocks.request.DeleteTrading;
 import com.stocker.backend.model_stocks.request.UpdateAlStatusDto;
 import com.stocker.backend.model_stocks.request.UpdateAlTradeDto;
 import com.stocker.backend.model_stocks.response.AmountDto;
 import com.stocker.backend.model_stocks.response.AmountResponseDto;
+import com.stocker.backend.model_stocks.response.ResponseBody;
 import com.stocker.backend.model_stocks.response.TradeResultDto;
 import com.stocker.backend.repository.AlTypesRepository;
 import com.stocker.backend.service.AlTradeResultService;
@@ -16,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Value;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.ResponseExtractor;
@@ -114,6 +117,25 @@ public class AlTradeController {
         List<String> response = alTradeResultService.getAllTypes();
 
         return response;
+    }
 
-    };
+    // Al-trade page의 SideBar에서 Delete button을 클릭했을 때, al-trade talbe, al-trade result table을 삭제해주는 메서드실행
+    @PostMapping("/delete/trading")
+    public ResponseEntity deleteTrading(@RequestHeader("Authorization") String authorizationHeader, @Valid @RequestBody DeleteTrading deleteTrading){
+        String token = authorizationHeader.replace("Bearer ", "");
+        String userId = (String) jwtProvider.parseClaims(token).get("userId");
+
+        boolean result = alTradeResultService.deleteAlTrade(userId, deleteTrading);
+
+        ResponseBody responseBody = new ResponseBody();
+        if(result){
+            responseBody.setMessage("Success Delete");
+            //202
+            return ResponseEntity.status(HttpStatus.ACCEPTED).body(responseBody);
+        }else {
+            responseBody.setMessage("Fail Delete");
+            //406
+            return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(responseBody);
+        }
+    }
 }

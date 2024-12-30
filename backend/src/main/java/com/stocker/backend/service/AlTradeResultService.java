@@ -64,7 +64,7 @@ public class AlTradeResultService {
         Byte alId = alTrade.getAlId().getAlId();
 
 
-        AmountDto amountDto = alTradeRepository.findBySymbolInitAndCurAmount(symbol, alId);
+        AmountDto amountDto = alTradeRepository.findBySymbolInitAndCurAmount(symbol, alId, id);
         Long curAmount = amountDto.getCurAmount() != null ? amountDto.getCurAmount() : 0L;
         AmountResponseDto amountResponseDto = new AmountResponseDto();
         amountResponseDto.setInitAmount(amountDto.getInitAmount());

@@ -138,4 +138,5 @@ public class AlTradeController {
             return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(responseBody);
         }
     }
+
 }

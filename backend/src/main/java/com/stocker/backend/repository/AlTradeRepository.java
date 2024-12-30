@@ -20,8 +20,9 @@ public interface AlTradeRepository extends JpaRepository<AlTrade, Integer> {
            FROM AlTrade at
            WHERE at.symbol = :symbol
            AND at.alId.alId = :alId
+           AND at.id=:id
            """)
-    AmountDto findBySymbolInitAndCurAmount(@Param("symbol") String symbol, @Param("alId") Byte alId);
+    AmountDto findBySymbolInitAndCurAmount(@Param("symbol") String symbol, @Param("alId") Byte alId, @Param("id")String id);
 
     AlTrade findByIdAndSymbol(String id, String symbol);
 

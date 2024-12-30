@@ -92,13 +92,19 @@ async def altypeOne():
                     update_query = "UPDATE al_trade set cur_amount = %s, buy_amount = %s WHERE idx=%s"
                     update_params = (cur_amount, None, row['idx'])
                     await database_instance.execute(update_query, update_params)
-                    profit_loss = (cur_amount / init_amount) * 100
+                    if cur_amount is None:
+                        profit_loss = 0
+                    else:
+                        profit_loss = (cur_amount / init_amount) * 100
 
                     result_params = (idx, symbol, trade_type, sell_amount, cur_price, profit_loss)
 
                 else:
-                    trade_type = 3.
-                    profit_loss = (cur_amount / init_amount) * 100
+                    trade_type = 3
+                    if cur_amount is None:
+                        profit_loss = 0
+                    else:
+                        profit_loss = (cur_amount / init_amount) * 100
                     result_params = (idx, symbol, trade_type, None, None, profit_loss)
                     logger.info("Stay Condition")
 
@@ -131,12 +137,13 @@ async def request2FMP():
             params = (symbol, cur_date,)
             # print(params)
             vol_data = await database_instance.fetch_rows(volume_query,params=params)
+            # logger.info("vol_data : %s",vol_data)
 
             current_time = datetime.now()
 
             # Subtract one day
             one_day_ago = current_time - timedelta(days=1)
-            ten_day_ago = current_time - timedelta(days=10)
+            ten_day_ago = current_time - timedelta(days=12)
             start_data = one_day_ago.date()
             logger.info("start date : %s", start_data)
             end_date = ten_day_ago.date()
@@ -201,6 +208,7 @@ async def requestCurprice(symbol : str) -> float:
 
 
 async def saveVolume(api_data : list):
+    # print(api_data)
     symbol = api_data["symbol"]
     historic_data = api_data["historical"]
     # query = "INSERT INTO stock_volume (symbol, volume, vol_date, change_ratio) VALUES (%s, %s, %s, %s)"

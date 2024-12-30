@@ -6,7 +6,7 @@ from src.logger import logger
 from dotenv import load_dotenv
 from src.scheduler import get_scheduler
 from src.al_process.al_process import  altypeOne,request2FMP
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 
 load_dotenv()
 
@@ -21,9 +21,10 @@ async def main():
             altypeOne,
             "interval",
             # hours=int(os.getenv("AL_CYCLE")),
-            minutes=1,
+            hours=int(os.getenv("AL_CYCLE")),
             id="al_id1",
-            next_run_time=datetime.now(),
+            next_run_time=datetime.now()+ timedelta(minutes=2),
+            # next_run_time=datetime.now(),
             misfire_grace_time=60,
         )
         # 두 번째 작업: 매일 특정 시간에 실행
@@ -76,6 +77,6 @@ if __name__ == '__main__':
         loop.run_until_complete(main())
     except (KeyboardInterrupt, SystemExit):
         pass
-    finally:
-        loop.close()
-        logger.info("Event loop closed.")
+    # finally:
+    #     loop.close()
+    #     logger.info("Event loop closed.")
